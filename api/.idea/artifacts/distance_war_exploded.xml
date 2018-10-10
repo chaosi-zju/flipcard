@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="distance:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/distance_war_exploded</output-path>
+    <root id="archive" name="distance_war exploded.war">
+      <element id="javaee-facet-resources" facet="api/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="api" />
+          <element id="library" level="project" name="mylib" />
+        </element>
+        <element id="library" level="project" name="mylib" />
+      </element>
+    </root>
+  </artifact>
+</component>
