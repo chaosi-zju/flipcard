@@ -15,6 +15,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Controller
@@ -468,6 +469,7 @@ public class UserController {
     @ResponseBody
     String uploadImg(@RequestParam("file") MultipartFile file, String userid, String kind, HttpServletRequest request) {
 
+        userid = UUID.randomUUID().toString().replace("-","");
         JsonObject resData = new JsonObject();
         String oriPath = "";
         String subPath;

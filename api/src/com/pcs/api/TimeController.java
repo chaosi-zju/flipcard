@@ -205,7 +205,7 @@ public class TimeController {
             preparedStatement.setInt(5, myid);
             preparedStatement.setInt(6, limitNum);
 
-            commonLog.info(preparedStatement.toString());
+//            commonLog.info(preparedStatement.toString());
 
             resultSet = preparedStatement.executeQuery();
             JsonArray arr = new JsonArray();
