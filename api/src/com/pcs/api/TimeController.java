@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.*;
+import java.util.UUID;
 
 
 @Controller
@@ -17,7 +18,7 @@ import java.sql.*;
 public class TimeController {
 
     private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2?useUnicode=true&characterEncoding=UTF-8";
+    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
     private String dbusername = "root";
     private String dbpassword = "moyan";
 
@@ -344,70 +345,101 @@ public class TimeController {
     @ResponseBody
     String giveFlower(String params) {
 
+        JsonObject resData = new JsonObject();
+
         JsonObject ids;
+        String openid;
+        int toid;
+
         try {
             ids = new JsonParser().parse(params).getAsJsonObject();
+            openid = ids.get("openid").getAsString();
         } catch (Exception e) {
             errLog.error("3501: " + e.getMessage() + "，params is: " + params, e);
             return sendRespond("3501", "url参数传递错误", null);
         }
-        String openid = ids.get("openid").getAsString();
-        int toid = ids.get("toid").getAsInt();
+
+        try {
+            toid = ids.get("toid").getAsInt();
+        } catch (Exception e) {
+            errLog.error("3504: " + e.getMessage() + "，params is: " + params, e);
+            resData.addProperty("toidExist", false);
+            return sendRespond("0000", "success", resData);
+        }
+
+        //openid补救措施
+//        openid = ids.get("openid").toString();
+//        if (openid.equals("null") || openid.equals("")) {
+//            openid = UUID.randomUUID().toString().replace("-", "");
+//            errLog.error("3505: wx_openid不存在，params is: " + params + "现在分配一个临时openid: " + openid);
+//        }
+
 
         boolean hasRecord;
         boolean isTodayRecord;
-
-        JsonObject resData = new JsonObject();
 
         try {
             Class.forName(driver);
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
             connection.setAutoCommit(false);//开启事务
 
-            String sql = "select updateTime from flower_given where openid = ? and toid = ?";
+            String sql0 = "select status from user_info where userid = ?";
+            String sql = "select updateTime from flower_given where openid = ?";
             String sql2 = "insert into flower_given values (?,?,now())";
-            String sql3 = "update flower_given set updateTime = now() where openid = ? and toid = ?";
+            String sql3 = "update flower_given set toid = ?, updateTime = now() where openid = ?";
             String sql4 = "update timerelied_info set flowerNum = flowerNum + ? where userid = ?";
 
-            preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, openid);
-            preparedStatement.setInt(2, toid);
+            //判断所赠送的人是否已存在
+            preparedStatement = connection.prepareStatement(sql0);
+            preparedStatement.setInt(1, toid);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                Date lastTime = resultSet.getDate("updateTime");
-                Date curTime = new Date(System.currentTimeMillis());
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, openid);
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    Date lastTime = resultSet.getDate("updateTime");
+                    Date curTime = new Date(System.currentTimeMillis());
 
-                Date lastTimeTmp = Date.valueOf(lastTime.toString());
-                Date curTimeTmp = Date.valueOf(curTime.toString());
-                //如果有记录，且上次时间是今天以前
-                if (lastTimeTmp.before(curTimeTmp)) {
-                    preparedStatement = connection.prepareStatement(sql3);
+                    Date lastTimeTmp = Date.valueOf(lastTime.toString());
+                    Date curTimeTmp = Date.valueOf(curTime.toString());
+                    if (lastTimeTmp.before(curTimeTmp)) {
+                        //如果有记录，且上次时间是今天以前，说明这个人今天以前赠送过玫瑰
+                        preparedStatement = connection.prepareStatement(sql3);
+                        preparedStatement.setInt(1, toid);
+                        preparedStatement.setString(2, openid);
+                        preparedStatement.executeUpdate();
+
+                        hasRecord = true;
+                        isTodayRecord = false;
+                    } else {
+                        //如果有记录，但上次时间还是今天，说明这个人今天赠送过玫瑰
+                        hasRecord = true;
+                        isTodayRecord = true;
+                    }
+                } else {
+                    //如果没有记录，说明这个人今天还没赠送玫瑰
+                    preparedStatement = connection.prepareStatement(sql2);
                     preparedStatement.setString(1, openid);
                     preparedStatement.setInt(2, toid);
                     preparedStatement.executeUpdate();
-
-                    hasRecord = true;
+                    hasRecord = false;
                     isTodayRecord = false;
-                } else {
-                    //如果有记录，但上次时间还是今天
-                    hasRecord = true;
-                    isTodayRecord = true;
                 }
-            } else {
-                //如果没有记录
-                preparedStatement = connection.prepareStatement(sql2);
-                preparedStatement.setString(1, openid);
-                preparedStatement.setInt(2, toid);
-                preparedStatement.executeUpdate();
-                hasRecord = false;
-                isTodayRecord = false;
-            }
 
-            if (!hasRecord || !isTodayRecord) {
-                preparedStatement = connection.prepareStatement(sql4);
-                preparedStatement.setInt(1, 1);
-                preparedStatement.setInt(2, toid);
-                preparedStatement.executeUpdate();
+                if (!hasRecord || !isTodayRecord) {
+                    preparedStatement = connection.prepareStatement(sql4);
+                    preparedStatement.setInt(1, 1);
+                    preparedStatement.setInt(2, toid);
+                    preparedStatement.executeUpdate();
+                }
+
+                resData.addProperty("toidExist", true);
+                resData.addProperty("hasRecord", hasRecord);
+                resData.addProperty("isTodayRecord", isTodayRecord);
+            } else {
+                errLog.error("3505: 该userid不存在数据库中，params is: " + params);
+                resData.addProperty("toidExist", false);
             }
 
             connection.commit();
@@ -417,8 +449,7 @@ public class TimeController {
             preparedStatement.close();
             connection.close();
 
-            resData.addProperty("hasRecord", hasRecord);
-            resData.addProperty("isTodayRecord", isTodayRecord);
+
             return sendRespond("0000", "success", resData);
 
         } catch (Exception e) {

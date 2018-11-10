@@ -16,7 +16,7 @@ import java.sql.*;
 public class AdminController {
 
     private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2?useUnicode=true&characterEncoding=UTF-8";
+    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
     private String dbusername = "root";
     private String dbpassword = "moyan";
 

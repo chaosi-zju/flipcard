@@ -23,7 +23,7 @@ import java.util.UUID;
 public class UserController {
 
     private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2?useUnicode=true&characterEncoding=UTF-8";
+    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
     private String dbusername = "root";
     private String dbpassword = "moyan";
 
@@ -106,7 +106,10 @@ public class UserController {
                 preparedStatement = connection.prepareStatement(sql2);
                 preparedStatement.setInt(1, userid);
                 preparedStatement.setString(2, userinfo.get("wx_openid").getAsString());
-                preparedStatement.executeUpdate();
+                int finish = preparedStatement.executeUpdate();
+                if (finish != 1) {
+                    throw new Exception("您的wx_openid不存在，可能后台未成功获取您的openid！");
+                }
 
                 //查询男女人数
                 preparedStatement = connection.prepareStatement(sql3);
@@ -396,6 +399,8 @@ public class UserController {
         if (wxinfo.get("wx_openid") == null) {
             errLog.error("0402: wx_openid不存在，params is: " + params);
             return sendRespond("0402", "wx_openid不存在", null);
+//            errLog.error("0404: wx_openid不存在，params is: " + params + "现在分配一个临时openid: 123456789");
+//            wxinfo.addProperty("wx_openid", "123456789");
         }
 
         JsonObject resData = new JsonObject();
@@ -462,6 +467,47 @@ public class UserController {
         }
     }
 
+    //判断用户openid是否存在
+    @RequestMapping(value = "/isOpenidExist", method = RequestMethod.GET)
+    @ResponseBody
+    String isOpenidExist(String openid) {
+
+        JsonObject resData = new JsonObject();
+        if (openid == null || openid.equals("") || openid.equals("undefined") || openid.equals("null")) {
+            errLog.error("0701: url参数错误，wx_openid为空，参数openid为" + openid);
+            resData.addProperty("openidExist", false);
+            return sendRespond("0000", "未传递wx_openid", resData);
+        }
+
+        try {
+            //数据库初始化
+            Class.forName(driver);
+            //校验用户名密码
+            connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
+
+            String sql = "select userid from wx_info where wx_openid = ?";
+
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, openid);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                resData.addProperty("openidExist", true);
+            } else {
+                resData.addProperty("openidExist", false);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
+            return sendRespond("0000", "success", resData);
+
+        } catch (Exception e) {
+            errLog.error("0702: " + e.getMessage() + "，params is: " + openid, e);
+            return sendRespond("0702", e.getMessage(), null);
+        }
+    }
+
     /*
      *采用spring提供的上传文件的方法
      */
@@ -469,7 +515,7 @@ public class UserController {
     @ResponseBody
     String uploadImg(@RequestParam("file") MultipartFile file, String userid, String kind, HttpServletRequest request) {
 
-        userid = UUID.randomUUID().toString().replace("-","");
+//        userid = UUID.randomUUID().toString().replace("-", "");
         JsonObject resData = new JsonObject();
         String oriPath = "";
         String subPath;

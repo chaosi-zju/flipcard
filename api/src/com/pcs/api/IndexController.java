@@ -60,6 +60,15 @@ public class IndexController {
         return sendRespond("0000", "success", resData);
     }
 
+    //判断是否在逃避审核
+    @RequestMapping(value = "/isNetWorking", method = RequestMethod.GET)
+    @ResponseBody
+    String isNetWorking() {
+        JsonObject resData = new JsonObject();
+        resData.addProperty("netOk", true);
+        return sendRespond("0000", "success", resData);
+    }
+
     private String sendRespond(String code, String info, JsonObject result) {
         JsonObject res = new JsonObject();
         res.addProperty("code", code);
