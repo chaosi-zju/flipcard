@@ -13,22 +13,22 @@
 
     <!-- [公共Appender] 这个class表示输入到文件，并且按日期生成新文件-->
     <appender name="ERROR-LOG" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="${flipcardv2}/logs/error-log.log" />  <!-- ${webapp.root}项目根路径，自动获得，不用配置，可自己在web.xml中配置 -->
+        <param name="File" value="${flipcardv3}/../mylog/flipcard/error_log" />  <!-- ${webapp.root}项目根路径，自动获得，不用配置，可自己在web.xml中配置 -->
         <param name="Append" value="true" />  <!-- 是否项目重启继续保存之前日志 -->
         <param name="encoding" value="UTF-8" />
         <param name="threshold" value="ALL" /> <!-- 记录所有类型日志，记录它和比它等级高的日志all<debug -->
-        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />  <!-- 日期格式  例子：common-default.log.2015-09-17.log-->
+        <param name="DatePattern" value="'_'yyyy-MM-dd'.log'" />  <!-- 日期格式  例子：common-default.log.2015-09-17.log-->
         <layout class="org.apache.log4j.PatternLayout">  <!-- 输出方式 -->
             <param name="ConversionPattern" value="%p:  %d{yyyy-MM-dd HH:mm:ss a} [Method: %l ]%n%m%n%n" />
         </layout>
     </appender>
 
     <appender name="COMMON-LOG" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="${flipcardv2}/logs/common-log.log" />
+        <param name="File" value="${flipcardv3}/../mylog/flipcard/common_log" />
         <param name="Append" value="true" />
         <param name="encoding" value="UTF-8" />
         <param name="threshold" value="ALL" />
-        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+        <param name="DatePattern" value="'_'yyyy-MM-dd'.log'" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%p:  %d{yyyy-MM-dd HH:mm:ss a} [Method: %l ]%n%m%n%n" />
         </layout>

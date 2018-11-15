@@ -6,19 +6,19 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.UUID;
 
 
 @Controller
 @RequestMapping("/index")
 public class IndexController {
 
-    private static final String wxAppid = "wx67aa7336c73cb84a";
-    private static final String wxAppsecret = "0e0ff76e5e3a53f837993044dbcb7287";
+    @Value("${wxAppid}") private String wxAppid;
+    @Value("${wxAppsecret}") private String wxAppsecret;
+    @Value("${isNetWorking}") private boolean isNetWorking;
 
     private static Logger errLog = Logger.getLogger("error-log");
 
@@ -34,7 +34,6 @@ public class IndexController {
     @ResponseBody
     String getOpenId(String code) {
 
-//        System.out.println(code);
         if (code == null || code.equals("")) {
             errLog.error("0101: url参数传递错误，params is: " + code);
             return sendRespond("0101", "url参数传递错误", null);
@@ -50,7 +49,7 @@ public class IndexController {
             Response res = client.newCall(req).execute();
             if (res.isSuccessful()) {
                 JsonObject data = new JsonParser().parse(res.body().string()).getAsJsonObject();
-                resData.add("openid",data.get("openid"));
+                resData.add("openid", data.get("openid"));
             }
         } catch (Exception e) {
             errLog.error("0102: " + e.getMessage() + "，params is: " + code, e);
@@ -65,7 +64,7 @@ public class IndexController {
     @ResponseBody
     String isNetWorking() {
         JsonObject resData = new JsonObject();
-        resData.addProperty("netOk", true);
+        resData.addProperty("netOk", isNetWorking);
         return sendRespond("0000", "success", resData);
     }
 

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,10 +17,10 @@ import java.sql.*;
 @RequestMapping("/cardinfo")
 public class CardController {
 
-    private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
-    private String dbusername = "root";
-    private String dbpassword = "moyan";
+    @Value("${driver}") private String driver;
+    @Value("${sqlUrl}") private String sqlUrl;
+    @Value("${dbusername}") private String dbusername;
+    @Value("${dbpassword}") private String dbpassword;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;

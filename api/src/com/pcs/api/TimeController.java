@@ -5,30 +5,30 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.*;
-import java.util.UUID;
 
 
 @Controller
 @RequestMapping("/timerelate")
 public class TimeController {
 
-    private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
-    private String dbusername = "root";
-    private String dbpassword = "moyan";
+    @Value("${driver}") private String driver;
+    @Value("${sqlUrl}") private String sqlUrl;
+    @Value("${dbusername}") private String dbusername;
+    @Value("${dbpassword}") private String dbpassword;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
-    private final int MAX_FLOWER = 10;        //最大玫瑰数
-    private final int FLOWER_COST_EVE = 2;    //每次翻牌消耗玫瑰数
-    private final int COMMEND_NUM_EVE = 10;   //每次推荐数目
+    @Value("${MAX_FLOWER}") private int MAX_FLOWER;              //最大玫瑰数
+    @Value("${FLOWER_COST_EVE}") private int FLOWER_COST_EVE;    //每次翻牌消耗玫瑰数
+    @Value("${COMMEND_NUM_EVE}") private int COMMEND_NUM_EVE;    //每次推荐数目
 
     private static Logger errLog = Logger.getLogger("error-log");
     private static Logger commonLog = Logger.getLogger("common-log");
@@ -138,7 +138,7 @@ public class TimeController {
                     preparedStatement.setInt(4, Integer.parseInt(userid));
                     preparedStatement.executeUpdate();
                 } else {
-                    //如果不是第一次推，需要保证明天推满10个
+                    //如果不是第一次推，需要保证今天推满10个
                     if (size < COMMEND_NUM_EVE) {
                         JsonObject ids = getAllCommendIds(lastId, commendGender, commendDist, myid, COMMEND_NUM_EVE - size);
                         if (ids.get("num").getAsInt() == -1) {
@@ -193,10 +193,10 @@ public class TimeController {
             Class.forName(driver);
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
-            String sql = "select userid from user_info where status = 1 and gender = ? and district = ? and userid > ? and userid != ? and userid not in " +
-                    "(select recvId as userid from relation_info where sendId = ?) limit ?";
-            String sql2 = "select userid from user_info where status = 1 and gender = ? and district = ? and userid > 0 and userid <= ? and userid != ? and userid not in " +
-                    "(select recvId as userid from relation_info where sendId = ?) limit ?";
+            String sql = "select userid from user_info where status = 1 and gender = ? and district = ? and userid > 0 and userid < ? and userid != ? and userid not in " +
+                    "(select recvId as userid from relation_info where sendId = ?) order by userid desc limit ? ";
+            String sql2 = "select userid from user_info where status = 1 and gender = ? and district = ? and userid >= ? and userid != ? and userid not in " +
+                    "(select recvId as userid from relation_info where sendId = ?) order by userid desc limit ? ";
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, commendGender);
@@ -223,7 +223,7 @@ public class TimeController {
                 preparedStatement.setInt(4, myid);
                 preparedStatement.setInt(5, myid);
                 preparedStatement.setInt(6, limitNum - cnt);
-                commonLog.info(preparedStatement.toString());
+//                commonLog.info(preparedStatement.toString());
 
                 resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {

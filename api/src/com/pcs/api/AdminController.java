@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,10 +16,10 @@ import java.sql.*;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
-    private String dbusername = "root";
-    private String dbpassword = "moyan";
+    @Value("${driver}") private String driver;
+    @Value("${sqlUrl}") private String sqlUrl;
+    @Value("${dbusername}") private String dbusername;
+    @Value("${dbpassword}") private String dbpassword;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
@@ -303,6 +304,76 @@ public class AdminController {
         } catch (Exception e) {
             errLog.error("5302: " + e.getMessage() + "，params is: " + params, e);
             return sendRespond("5302", e.getMessage(), null);
+        }
+    }
+
+    //审核用户
+    @RequestMapping(value = "/deleteUser", method = RequestMethod.GET)
+    @ResponseBody
+    String deleteUser(String userid) {
+
+        int uid;
+        try {
+            uid = Integer.parseInt(userid);
+        } catch (Exception e) {
+            errLog.error("5601: " + e.getMessage() + "，userid is: " + userid, e);
+            return sendRespond("5601", "url参数传递错误", null);
+        }
+
+        try {
+            //数据库初始化
+            Class.forName(driver);
+            //校验用户名密码
+            connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
+            connection.setAutoCommit(false);//开启事务
+
+            String sql0 = "insert into quit_user select * from user_info where userid = ?";
+            String sql = "delete from user_info where userid = ?";
+            String sql2 = "update wx_info set userid = -1 where userid = ?";
+            String sql3 = "delete from timerelied_info where userid = ?";
+            String sql4 = "delete from relation_info where sendId = ? or recvId = ?";
+
+            preparedStatement = connection.prepareStatement(sql0);
+            preparedStatement.setInt(1, uid);
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, uid);
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement(sql2);
+            preparedStatement.setInt(1, uid);
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement(sql3);
+            preparedStatement.setInt(1, uid);
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement(sql4);
+            preparedStatement.setInt(1, uid);
+            preparedStatement.setInt(2, uid);
+            preparedStatement.executeUpdate();
+
+            connection.commit();
+            connection.setAutoCommit(true);
+
+            preparedStatement.close();
+            connection.close();
+
+            return sendRespond("0000", "success", null);
+
+        } catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                    connection.setAutoCommit(true);
+                }
+            } catch (SQLException e1) {
+                errLog.error("5603: " + e1.getMessage() + "，userid is: " + userid, e1);
+                return sendRespond("5603", e1.getMessage(), null);
+            }
+            errLog.error("5602: " + e.getMessage() + "，userid is: " + userid, e);
+            return sendRespond("5602", e.getMessage(), null);
         }
     }
 

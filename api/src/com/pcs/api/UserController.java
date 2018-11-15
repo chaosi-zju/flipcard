@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,17 +23,17 @@ import java.util.UUID;
 @RequestMapping("/userinfo")
 public class UserController {
 
-    private String driver = "com.mysql.jdbc.Driver";
-    private String sqlUrl = "jdbc:mysql://localhost:3306/flipcardv2";
-    private String dbusername = "root";
-    private String dbpassword = "moyan";
+    @Value("${driver}") private String driver;
+    @Value("${sqlUrl}") private String sqlUrl;
+    @Value("${dbusername}") private String dbusername;
+    @Value("${dbpassword}") private String dbpassword;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
-    private static final int USER_STATUS_INIT = 0;
-    private static final int MAX_FLOWER = 10;        //最大玫瑰数
+    @Value("${USER_STATUS_INIT}") private int USER_STATUS_INIT;
+    @Value("${MAX_FLOWER}") private int MAX_FLOWER;        //最大玫瑰数
 
     private static Logger errLog = Logger.getLogger("error-log");
 
@@ -72,9 +73,9 @@ public class UserController {
 
             String sql1 = "insert into user_info values (0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'',now())";
             String sql2 = "update wx_info set userid = ? where wx_openid = ?";
-            String sql3 = "select count(*) as cnt from user_info where gender = 1 " +
-                    "union all " +
-                    "select count(*) as cnt from user_info where gender = 2";
+//            String sql3 = "select count(*) as cnt from user_info where gender = 1 " +
+//                    "union all " +
+//                    "select count(*) as cnt from user_info where gender = 2";
             String sql4 = "insert into timerelied_info values (?,?,?,?,?,'','',now())";
 
             preparedStatement = connection.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS);
@@ -111,39 +112,15 @@ public class UserController {
                     throw new Exception("您的wx_openid不存在，可能后台未成功获取您的openid！");
                 }
 
-                //查询男女人数
-                preparedStatement = connection.prepareStatement(sql3);
-                resultSet = preparedStatement.executeQuery();
-                int menCnt, womenCnt;
+                //插入timerelied_info
+                preparedStatement = connection.prepareStatement(sql4);
+                preparedStatement.setInt(1, userid);
+                preparedStatement.setInt(2, MAX_FLOWER);
+                preparedStatement.setInt(3, userid);
+                preparedStatement.setInt(4, (userinfo.get("gender").getAsInt() == 1 ? 2 : 1));
+                preparedStatement.setString(5, userinfo.get("district").getAsString());
+                preparedStatement.executeUpdate();
 
-                if (resultSet.next()) {
-                    menCnt = resultSet.getInt(1);
-
-                    if (resultSet.next()) {
-                        womenCnt = resultSet.getInt(1);
-
-                        //插入timerelied_info
-                        preparedStatement = connection.prepareStatement(sql4);
-                        preparedStatement.setInt(1, userid);
-                        preparedStatement.setInt(2, MAX_FLOWER);
-                        int gend = userinfo.get("gender").getAsInt();
-                        if (gend == 1) {
-                            preparedStatement.setInt(3, (womenCnt == 0 ? 0 : (menCnt % womenCnt)));
-                            preparedStatement.setInt(4, 2);
-                        } else {
-
-                            preparedStatement.setInt(3, (menCnt == 0 ? 0 : (womenCnt % menCnt)));
-                            preparedStatement.setInt(4, 1);
-                        }
-                        preparedStatement.setString(5, userinfo.get("district").getAsString());
-                        preparedStatement.executeUpdate();
-
-                    } else {
-                        throw new Exception("获取女用户数失败");
-                    }
-                } else {
-                    throw new Exception("获取男用户数失败");
-                }
             } else {
                 throw new Exception("插入的用户主键获取失败");
             }
@@ -361,7 +338,8 @@ public class UserController {
                 objInfo.addProperty("gender", genderArr[objInfo.get("gender").getAsInt()]);
                 objInfo.addProperty("groups", groupsArr[objInfo.get("groups").getAsInt()]);
                 objInfo.addProperty("education", educationArr[objInfo.get("education").getAsInt()]);
-                objInfo.addProperty("district", objInfo.get("district").getAsString().equals("330100") ? "杭州" : "非杭州");
+                objInfo.addProperty("district", districtMap.get(objInfo.get("district").getAsString()));
+
                 objsInfo.add(objInfo);
 
             }
@@ -464,6 +442,50 @@ public class UserController {
         } catch (Exception e) {
             errLog.error("0403: " + e.getMessage() + "，params is: " + params, e);
             return sendRespond("0403", e.getMessage(), null);
+        }
+    }
+
+    //添加wx_info
+    //{ wx_openid: "wx1234", wx_nickName:"wxchaosi", wx_gender:"1", wx_province:"zhejiang", wx_city:"hangzhou", wx_avatarUrl:"http://d.com" }
+    @RequestMapping(value = "/addWxInfo", method = RequestMethod.GET)
+    @ResponseBody
+    String addWxInfo(String params) {
+
+        JsonObject wxinfo;
+        try {
+            wxinfo = new JsonParser().parse(params).getAsJsonObject();
+        } catch (Exception e) {
+            errLog.error("0801: " + e.getMessage() + "，params is: " + params, e);
+            return sendRespond("0801", "url参数传递错误", null);
+        }
+
+
+        try {
+            //数据库初始化
+            Class.forName(driver);
+            //校验用户名密码
+            connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
+
+            String sql = "insert into wx_info values (0,?,-1,?,?,?,?,?,now())";
+
+            preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, wxinfo.get("wx_openid").getAsString());
+            preparedStatement.setString(2, wxinfo.get("wx_nickName").getAsString());
+            preparedStatement.setString(3, wxinfo.get("wx_gender").getAsString());
+            preparedStatement.setString(4, wxinfo.get("wx_province").getAsString());
+            preparedStatement.setString(5, wxinfo.get("wx_city").getAsString());
+            preparedStatement.setString(6, wxinfo.get("wx_avatarUrl").getAsString());
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+
+            return sendRespond("0000", "success", null);
+
+        } catch (Exception e) {
+            errLog.error("0802: " + e.getMessage() + "，params is: " + params, e);
+            return sendRespond("0802", e.getMessage(), null);
         }
     }
 

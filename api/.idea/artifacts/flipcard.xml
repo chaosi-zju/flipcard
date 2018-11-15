@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="war" name="flipcardv2">
+  <artifact type="war" name="flipcard">
     <output-path>$PROJECT_DIR$/out/artifacts/flipcard</output-path>
-    <root id="archive" name="flipcardv2.war">
+    <root id="archive" name="flipcard.war">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="api" />
