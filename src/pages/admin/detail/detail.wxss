@@ -1,0 +1,142 @@
+/* pages/personal/personal.wxss */
+
+.main-container {
+  padding-left: 75rpx;
+  padding-right: 75rpx;
+}
+
+.row-info {
+  display: flex;
+  width: 600rpx;
+  flex-direction: row;
+  padding: 45rpx 0rpx 45rpx 0rpx;
+  /* border:1rpx solid black; */
+}
+
+.row-name {
+  font-size: 36rpx;
+  width: 90rpx;
+  /* border:1rpx solid black; */
+}
+
+.pickertext {
+  font-size: 36rpx;
+  margin-left: 70rpx;
+  width: 400rpx;
+  color: rgb(40, 40, 40);
+  /* border:1rpx solid black; */
+}
+
+.block-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 50rpx;
+  padding-bottom: 50rpx;
+  /* border: 1rpx solid black; */
+}
+
+.upload-img2 {
+  width: 600rpx;
+  height: 660rpx;
+  margin-bottom: 30rpx;
+  /* border: 1rpx solid black; */
+}
+
+.upload-img3 {
+  width: 600rpx;
+  height: 400rpx;
+  margin-bottom: 30rpx;
+  /* border: 1rpx solid black; */
+}
+
+.img-tip {
+  width: 600rpx;
+  color: rgb(60, 60, 60);
+  padding: 10rpx 10rpx 10rpx 10rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* border: 1rpx solid black; */
+}
+
+.img-title {
+  width: 600rpx;
+  font-size: 34rpx;
+  font-weight: bold;
+  text-align: center;
+  /* border: 1rpx solid black; */
+}
+
+.img-text {
+  width: 500rpx;
+  font-size: 32rpx;
+  color: rgb(60, 60, 60);
+  margin-top: 40rpx;
+  margin-bottom: 20rpx;
+  text-align: center;
+  /* border: 1rpx solid black; */
+}
+
+.img-holder {
+  font-size: 30rpx;
+}
+
+.reason-text {
+  width: 600rpx;
+  font-size: 32rpx;
+  color: rgb(60, 60, 60);
+  margin-top: 40rpx;
+  margin-bottom: 20rpx;
+  text-align: left;
+  border: 1rpx solid rgb(160, 160, 160);
+}
+
+.reject-btn {
+  width: 160rpx;
+  background: rgb(255, 114, 114);
+  color: white;
+  font-size: 30rpx;
+  border-radius: 5%;
+  margin-left: 20rpx;
+  margin-right: 20rpx;
+  padding: 10rpx 0;
+  /* border: 1rpx solid rgb(60, 60, 60); */
+}
+
+.agree-btn {
+  width: 160rpx;
+  background: #03d5fe;
+  color: white;
+  font-size: 30rpx;
+  border-radius: 5%;
+  margin-left: 20rpx;
+  margin-right: 20rpx;
+  padding: 10rpx 0;
+}
+
+.delete-btn {
+  width: 160rpx;
+  background: #1d454d;
+  color: white;
+  font-size: 30rpx;
+  border-radius: 5%;
+  margin-left: 20rpx;
+  margin-right: 20rpx;
+  padding: 10rpx 0;
+}
+
+.line {
+  width: 100%;
+  height: 4rpx;
+  background: #c7c7c7;
+}
+
+.blank {
+  width: 100%;
+  height: 40rpx;
+  /* border: 1rpx solid rgb(60, 60, 60); */
+}

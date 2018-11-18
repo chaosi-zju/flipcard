@@ -1,0 +1,61 @@
+
+<view class='blank' hidden='{{objsInfo.length!=0}}'>
+  <text>无</text>
+</view>
+
+<!-- 卡片主体-正面 -->
+<swiper class='main-container' hidden='{{frontHide}}' indicator-dots='true' current='{{curIndex}}' circular='true' bindchange='onSwiperChanged'>
+
+  <block wx:for='{{objsInfo}}' wx:key='userid'>
+    <swiper-item class='card-container'>
+
+      <image src="{{item.hobbyImage}}" class="image-area" mode="aspectFit"></image>
+
+      <view style='margin:35rpx;'>
+        <text style='font-size:38rpx;'>{{item.hobbyImageTitle}}</text>
+      </view>
+
+      <view style='width:420rpx;margin-top:15rpx;margin-bottom:25rpx;'>
+        <text style='font-size:25rpx;'>{{item.hobbyImageDes}}</text>
+      </view>
+
+    </swiper-item>
+  </block>
+
+</swiper>
+
+<!-- 卡片主体-反面 -->
+<view class='main-container' hidden='{{!frontHide}}'>
+  <view class='card-container'>
+
+    <image src="{{curObj.faceImage}}" class="image-back" mode="aspectFit"></image>
+
+    <view class='back-des'>
+      <text>{{curObj.groups}} | {{curObj.district}} | {{curObj.birthyear}}年{{curObj.star}}</text>
+    </view>
+
+    <view class='back-des'>
+      <text>{{curObj.education}} | {{curObj.school}}</text>
+    </view>
+
+    <view class='back-des' style='margin-bottom:40rpx'>
+      <text>爱好 | {{curObj.hobby}}</text>
+    </view>
+
+  </view>
+</view>
+
+<!-- 卡片底部 -->
+<view class='bottom-container'>
+  <view class='op-view' hidden='{{!frontHide}}'>
+    <button bindtap="deleteCard" class='recv-btn' style='color:red;'> 删除 </button>
+  </view>
+
+  <view class='op-view' hidden='{{objsInfo.length==0}}'>
+    <button bindtap="flipcard" class='flip-btn'> 翻 </button>
+  </view>
+
+  <view class='op-view' hidden='{{!frontHide}}'>
+    <button bindtap="agreeCard" class='recv-btn' style='color:green;'> 同意 </button>
+  </view>
+</view>

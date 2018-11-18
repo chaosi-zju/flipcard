@@ -1,0 +1,48 @@
+<view class='blank' hidden='{{userinfo.userid||userinfo.wx_openid}}'>
+  <text>无</text>
+</view>
+
+<!-- 卡片主体-正面 -->
+<view class='main-container' hidden='{{frontHide}}'>
+  <view class='card-container'>
+
+    <image src="{{userinfo.hobbyImage}}" class="image-area" mode="aspectFit"></image>
+
+    <view style='margin:35rpx;'>
+      <text style='font-size:38rpx;'>{{userinfo.hobbyImageTitle}}</text>
+    </view>
+
+    <view style='width:420rpx;margin-top:15rpx;margin-bottom:25rpx;'>
+      <text style='font-size:25rpx;'>{{userinfo.hobbyImageDes}}</text>
+    </view>
+
+  </view>
+</view>
+
+<!-- 卡片主体-反面 -->
+<view class='main-container' hidden='{{!frontHide}}'>
+  <view class='card-container'>
+
+    <image src="{{userinfo.faceImage}}" class="image-back" mode="aspectFit"></image>
+
+    <view class='back-des'>
+      <text>{{userinfo.groups}} | {{userinfo.district}} | {{userinfo.birthyear}}年{{userinfo.star}}</text>
+    </view>
+
+    <view class='back-des'>
+      <text>{{userinfo.education}} | {{userinfo.school}}</text>
+    </view>
+
+    <view class='back-des' style='margin-bottom:50rpx'>
+      <text>爱好 | {{userinfo.hobby}}</text>
+    </view>
+
+  </view>
+</view>
+
+<!-- 卡片底部 -->
+<view class='bottom-container'>
+  <view class='op-view' hidden='{{!userinfo.userid&&!userinfo.wx_openid}}'>
+    <button bindtap="flipcard" class='flip-btn'> 翻 </button>
+  </view>
+</view>

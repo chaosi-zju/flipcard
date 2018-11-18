@@ -1,0 +1,28 @@
+
+<view class='blank' hidden='{{objsInfo.length!=0}}'>
+  <text>无</text>
+</view>
+
+<scroll-view class="scroll-view" scroll-y='true'>
+
+  <view wx:for='{{objsInfo}}' wx:key='userid'>
+
+    <view class="scroll-item">
+
+      <image src="{{item.faceImage}}" class='face-image' bindtap='seeDetail' data-index='{{index}}'/>
+
+      <view class='item-text' bindtap='seeDetail' data-index='{{index}}'>
+        <text>微信: </text>
+      </view>
+
+      <view class='item-text'>
+        <text selectable='true'>{{item.wxnum}}</text>
+      </view>
+      
+    </view>
+
+    <view class='line'/>
+
+  </view>
+
+</scroll-view>

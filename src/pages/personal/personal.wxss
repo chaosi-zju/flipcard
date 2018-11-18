@@ -1,0 +1,145 @@
+/* pages/personal/personal.wxss */
+
+.main-container {
+  padding-left: 90rpx;
+  padding-right: 90rpx;
+}
+
+.row-info {
+  display: flex;
+  width: 570rpxrpx;
+  flex-direction: row;
+  padding: 45rpx 0rpx 45rpx 0rpx;
+  /* border:1rpx solid black; */
+}
+
+.row-name {
+  font-size: 36rpx;
+  width: 90rpx;
+  /* border:1rpx solid black; */
+}
+
+.placeholder {
+  font-size: 34rpx;
+  color: rgb(133, 131, 131);
+  margin-left: 70rpx;
+  /* border:1rpx solid black; */
+}
+
+.placeholder2 {
+  font-size: 34rpx;
+  color: rgb(133, 131, 131);
+  /* border:1rpx solid black; */
+}
+
+.pickertext {
+  font-size: 36rpx;
+  margin-left: 70rpx;
+  width: 400rpx;
+  color: rgb(40, 40, 40);
+  /* border:1rpx solid black; */
+}
+
+.block-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 50rpx;
+  padding-bottom: 50rpx;
+  /* border: 1rpx solid black; */
+}
+
+.upload-img {
+  width: 196rpx;
+  height: 196rpx;
+  margin-bottom: 30rpx;
+  /* border: 1rpx solid black; */
+}
+
+.upload-img2 {
+  width: 400rpx;
+  height: 440rpx;
+  margin-bottom: 30rpx;
+  /* border: 1rpx solid black; */
+}
+
+.upload-img3 {
+  width: 400rpx;
+  height: 270rpx;
+  margin-bottom: 30rpx;
+  /* border: 1rpx solid black; */
+}
+
+.upload-des {
+  width: 400rpx;
+  font-size: 25rpx;
+  color: rgb(40, 40, 40);
+  margin-top: 10rpx;
+  margin-bottom: 10rpx;
+  text-align: center;
+  /* border: 1rpx solid black; */
+}
+
+.img-tip {
+  width: 400rpx;
+  color: rgb(60, 60, 60);
+  padding: 30rpx 10rpx 10rpx 10rpx;
+  text-align: left;
+  /* border: 1rpx solid black; */
+}
+
+.img-title {
+  width: 400rpx;
+  font-size: 34rpx;
+  /* border: 1rpx solid black; */
+}
+
+.img-text {
+  width: 400rpx;
+  font-size: 31rpx;
+  color: rgb(60, 60, 60);
+  margin-top: 10rpx;
+  /* border: 1rpx solid black; */
+}
+
+.img-holder {
+  font-size: 30rpx;
+}
+
+.preview-btn{
+  margin-top: 20px;
+  width: 642rpx;
+  background: white;
+  color: rgb(60, 60, 60);
+  border-radius: 5%;
+  border: 1rpx solid rgb(60, 60, 60);
+}
+
+.submit-from{
+  margin-bottom: 70rpx;
+  width:642rpx;
+}
+
+.submit-btn {
+  background: #03d5fe;
+  color: white;
+  border-radius: 5%;
+}
+
+.line {
+  width: 100%;
+  height: 4rpx;
+  background: #c7c7c7;
+}
+
+.failtext{
+  font-size: 32rpx;
+  color: rgb(190, 49, 49)
+}
+
+.statictext{
+  font-size: 32rpx;
+  color: rgb(80, 80, 80);
+  margin-left: 30rpx;
+}

@@ -1,0 +1,147 @@
+<view class="main-container">
+
+  <!-- 地域 -->
+  <view class='row-info'>
+    <text class='row-name'>地域</text>
+    <view class='pickertext'>{{userinfo.district}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 性别 -->
+  <view class='row-info'>
+    <text class='row-name'>性别</text>
+    <view class='pickertext'>{{userinfo.gender}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 年龄 -->
+  <view class='row-info'>
+    <text class='row-name'>年龄</text>
+    <view class='pickertext'>{{userinfo.birthyear}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 星座 -->
+  <view class='row-info'>
+    <text class='row-name'>星座</text>
+    <view class='pickertext'>{{userinfo.star}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 类别 -->
+  <view class='row-info'>
+    <text class='row-name'>类别</text>
+    <view class='pickertext'>{{userinfo.groups}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 学历 -->
+  <view class='row-info'>
+    <text class='row-name'>学历</text>
+    <view class='pickertext'>{{userinfo.education}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 学校 -->
+  <view class='row-info'>
+    <text class='row-name'>学校</text>
+    <view class='pickertext'>{{userinfo.school}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 爱好 -->
+  <view class='row-info'>
+    <text class='row-name'>爱好</text>
+    <view class='pickertext'>{{userinfo.hobby}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 微信 -->
+  <view class='row-info'>
+    <text class='row-name'>微信</text>
+    <view class='pickertext'>{{userinfo.wxnum}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 手机 -->
+  <view class='row-info'>
+    <text class='row-name'>手机</text>
+    <view class='pickertext'>{{userinfo.phonenum}}</view>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 情感照 -->
+  <view class='block-info'>
+
+    <image src="{{userinfo.hobbyImage}}" mode="aspectFit" class=' upload-img2' />
+
+    <view class='img-tip '>
+      <view class='img-title'>{{userinfo.hobbyImageTitle}}</view>
+      <view class='img-text'>{{userinfo.hobbyImageDes}}</view>
+    </view>
+
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="line" />
+
+  <!-- 上传脸部照片 -->
+  <view class='block-info '>
+    <image src="{{userinfo.faceImage}}" mode="aspectFit" class='upload-img2' />
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="line" />
+
+  <!-- 上传学生证 -->
+  <view class='block-info'>
+    <image src="{{userinfo.identityImage}}" mode="aspectFit" class=' upload-img3' />
+  </view>
+
+  <!-- 用户审核通过就隐藏 -->
+  <view hidden='{{status==1}}'>
+    <!-- 分隔线 -->
+    <view class="line" />
+
+    <view class='row-info'>
+      <textarea wx:if="{{status==0}}" placeholder="如果不通过审核，请说明不通过原因" class='reason-text' placeholder-class='img-holder' style='height:200rpx;padding:8rpx 2rpx;' bindinput='inputReason' />
+
+      <textarea wx:elif="{{status==2}}" value="未通过原因： {{userinfo.failReason}}" class='reason-text' style='height:200rpx;padding:8rpx 2rpx;' disabled />
+    </view>
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="line" />
+
+  <!-- 审核按钮 -->
+  <view class='blank' />
+  <view class='row-info' style='justify-content:center;'>
+    <button class='delete-btn ' bindtap='delete'> 删除 </button>
+    <!-- 不是正在审核用户就隐藏 -->
+    <button class='reject-btn ' bindtap='reject' hidden='{{status!=0}}'> 不通过 </button>
+    <button class='agree-btn ' bindtap='agree' hidden='{{status!=0}}'> 通过 </button>
+  </view>
+  <view class='blank' />
+
+
+</view>

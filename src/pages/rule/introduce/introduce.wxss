@@ -1,0 +1,76 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: left;
+  text-align: left;
+  padding: 50rpx 50rpx 100rpx 50rpx;
+  /* border: 1rpx solid black; */
+}
+
+.title {
+  font-size: 38rpx;
+  font-weight: bold;
+  padding-top: 10rpx;
+  padding-bottom: 10rpx;
+  text-align: left;
+  align-content: left;
+  /* border: 1rpx solid black; */
+}
+
+.text {
+  font-size: 32rpx;
+}
+
+.imglist {
+  width: 100%;
+  /* border: 1rpx solid black; */
+}
+
+.imgpanel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 32rpx;
+  margin-bottom: 110rpx;
+}
+
+.img {
+  width: 530rpx;
+  height: 872rpx;
+}
+
+.bottom-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 999;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 20rpx 0;
+  /* border: 1rpx solid black; */
+}
+
+.op-view {
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  margin-left: 70rpx;
+  margin-right: 70rpx;
+}
+
+.recv-btn {
+  width: 210rpx;
+  /* color: white;
+  background: #68da39; */
+  font-size: 30rpx;
+  background: white;
+  /* color: rgb(60, 60, 60); */
+  border: 1rpx solid rgb(160, 160, 160);
+}

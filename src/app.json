@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/admin/userlist",
+    "pages/rule/introduce/introduce",
+    "pages/rule/notice/notice",
+    "pages/personal/personal",
+    "pages/wxrecv/wxrecv",
+    "pages/cardrecv/cardrecv",
+    "pages/main/main",
+    "pages/detail/detail",
+    "pages/personal/upload/upload",
+    "pages/admin/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "翻牌子",
+    "navigationBarTextStyle": "black"
+  }
+}

@@ -1,0 +1,40 @@
+
+<view class='blank' hidden='{{users.length!=0}}'>
+  <text>无</text>
+</view>
+
+<scroll-view class="scroll-view" scroll-y='true' hidden='{{users.length==0}}'>
+
+  <view wx:for='{{users}}' wx:key='userid' bindtap='seeDetail' data-index='{{index}}'>
+
+    <view class="scroll-item">
+
+      <view class='item-text'>
+        <text>用户id: </text>
+      </view>
+
+      <view class='item-text'>
+        <text>{{item.userid}}</text>
+      </view>
+      
+    </view>
+    <view class='lasttime'>更新于： {{item.updateTime}}</view>
+
+    <view class='line'/>
+
+  </view>
+
+</scroll-view>
+
+<view class='calc'>
+  <view class='calc-text'>男： {{userNum.men}}</view>
+  <view class='calc-text'>女： {{userNum.women}}</view>
+  <view class='calc-text'>总： {{userNum.all}}</view>
+</view>
+
+<view class='bottom'>
+  <button bindtap='getNotChecked' class='bottom-btn' style='color:red'>待审核用户</button>
+  <button bindtap='getChecked' class='bottom-btn' style='color:green'>已通过用户</button> 
+  <button bindtap='getNotPassed' class='bottom-btn' style='color:rgb(80, 80, 80)'>未通过用户</button>   
+  <button bindtap='addPseudo' class='bottom-btn-add' style='color:green'>新增</button>   
+</view>

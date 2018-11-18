@@ -1,0 +1,113 @@
+<!-- 卡片顶部 -->
+<view class='topContainer'>
+  <view wx:if='{{userstatus==-1}}' style='font-size:24rpx;color:red;'>游客模式</view>
+  <view wx:else style='font-size:24rpx;color:red;'>
+    <text>玫瑰: {{flowerNum}} </text>
+    <text hidden='{{flowerNum > 4}}'>(转发可获更多)</text>
+  </view>
+</view>
+
+<!-- 无 -->
+<view class='main-container' hidden='{{objsInfo.length!=0}}'>
+  <text>暂无</text>
+</view>
+
+<!-- 卡片主体-正面 -->
+<swiper class='main-container' hidden='{{frontHide||objsInfo.length==0}}' current='{{curIndex}}' indicator-dots='true' circular='true' bindchange='onSwiperChanged'>
+
+  <!-- 每批推荐10个 -->
+  <block wx:for='{{objsInfo}}' wx:key='userid'>
+    <swiper-item class='card-container'>
+      <view class='card-inner'>
+        <image src="{{item.hobbyImage}}" class="image-area" mode="aspectFit"></image>
+
+        <view style='margin:20rpx;'>
+          <text style='font-size:35rpx;'>{{item.hobbyImageTitle}}</text>
+        </view>
+
+        <view style='width:420rpx;margin-top:5rpx;margin-bottom:20rpx;'>
+          <text style='font-size:25rpx;'>{{item.hobbyImageDes}}</text>
+        </view>
+      </view>
+    </swiper-item>
+  </block>
+
+  <!-- 换一批按钮 -->
+  <block>
+    <swiper-item class='card-container'>
+      <view class='op-view'>
+        <view class='remain'>剩余更换次数： {{changeNum}}</view>
+      </view>
+      <view class='op-view'>
+        <button class='recv-btn chang-btn' bindtap='changeBatch'>换一批</button>
+      </view>
+      <ad class='ad' unit-id="adunit-af0d733bb88283a3"></ad>
+    </swiper-item>
+  </block>
+
+</swiper>
+
+<!-- 卡片主体-反面 -->
+<view class='main-container' hidden='{{!frontHide}}'>
+  <view class='card-container'>
+    <view class='card-inner'>
+
+      <image src="{{curObj.faceImage}}" class="image-back" mode="aspectFit"></image>
+
+      <view class='back-des'>
+        <text>{{curObj.groups}} | {{curObj.district}} | {{curObj.birthyear}}年{{curObj.star}}</text>
+      </view>
+
+      <view class='back-des'>
+        <text>{{curObj.education}} | {{curObj.school}}</text>
+      </view>
+
+      <view class='back-des' style='margin-bottom:40rpx'>
+        <text>爱好 | {{curObj.hobby}}</text>
+      </view>
+
+    </view>
+  </view>
+</view>
+
+<!-- 卡片底部-正面 -->
+<view class='bottom-container' hidden='{{frontHide}}'>
+  <view class='op-view'>
+    <button bindtap="showRecvWx" class='recv-btn'> 收到的微信 </button>
+  </view>
+
+  <view class='op-view' hidden='{{objsInfo.length==0}}'>
+    <button bindtap="flipcard" class='flip-btn' disabled='{{curIndex==objsInfo.length}}'> 翻牌子 </button>
+    <!--弹窗-->
+    <view class="modal-mask" wx:if="{{!modalHide}}"></view>
+    <view class="modal-dialog" wx:if="{{!modalHide}}">
+      <view class="modal-title">提示</view>
+      <view class="modal-content">{{modalText}}</view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="modalCancel">狠心放弃</button>
+        <view class='coline' />
+        <button class="btn-confirm" bindtap="modalConfirm" open-type="share">联系好友</button>
+      </view>
+    </view>
+  </view>
+
+  <view class='op-view'>
+    <button bindtap="showRecvCard" class='recv-btn'> 收到的卡片 </button>
+  </view>
+</view>
+
+<!-- 卡片底部-反面 -->
+<view class='bottom-container' hidden='{{!frontHide}}'>
+  <view class='op-view'>
+    <!-- <view class='blank-btn' /> -->
+    <button bindtap="sendCard" class='send-btn' disabled='{{curRelation!=-1}}'> {{relationText[curRelation+1]}} </button>
+  </view>
+
+  <view class='op-view'>
+    <button bindtap="backToFront" class='back-btn'> 继续翻 </button>
+  </view>
+
+  <view class='op-view'>
+    <button bindtap="sendCard" class='send-btn' disabled='{{curRelation!=-1}}'> {{relationText[curRelation+1]}} </button>
+  </view>
+</view>

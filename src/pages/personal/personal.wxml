@@ -1,0 +1,203 @@
+<view class="main-container">
+
+  <view class='row-info' hidden='{{userstatus!=2}}'>
+    <text class='failtext'>审核不通过原因：{{failReason}}</text>
+  </view>
+
+  <!-- 地域 -->
+  <view class='row-info'>
+    <text class='row-name'>地域</text>
+    <picker bindchange='districtChange' value='{{distIdx}}' range='{{district}}' disabled='{{userid!=null}}'>
+      <view class='placeholder' wx:if='{{distIdx==null}}'>选择所在城市(不可改)</view>
+      <view class='pickertext' wx:else>
+        {{district[distIdx]}}
+        <text class='statictext'> (不可改)</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 性别 -->
+  <view class='row-info'>
+    <text class='row-name'>性别</text>
+    <picker bindchange='genderChange' value='{{genderIdx}}' range='{{gender}}' disabled='{{userid!=null}}'>
+      <view class='placeholder' wx:if='{{genderIdx==null}}'>选择性别(不可改)</view>
+      <view class='pickertext' wx:else>
+        {{gender[genderIdx]}}
+        <text class='statictext'> (不可改)</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 年龄 -->
+  <view class='row-info'>
+    <text class='row-name'>年龄</text>
+    <picker bindchange='birthyearChange' value='{{yearIdx}}' range='{{birthyear}}' disabled='{{userid!=null}}'>
+      <view class='placeholder' wx:if='{{yearIdx==null}}'>选择出生年份(不可改)</view>
+      <view class='pickertext' wx:else>
+        {{birthyear[yearIdx]}}
+        <text class='statictext'> (不可改)</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 星座 -->
+  <view class='row-info'>
+    <text class='row-name'>星座</text>
+    <picker bindchange='starChange' value='{{starIdx}}' range='{{star}}'>
+      <view class='placeholder' wx:if='{{starIdx==null}}'>选择您的星座</view>
+      <view class='pickertext' wx:else>{{star[starIdx]}}</view>
+    </picker>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 类别 -->
+  <view class='row-info'>
+    <text class='row-name'>类别</text>
+    <picker bindchange='groupsChange' value='{{groupsIdx}}' range='{{groups}}' disabled='{{userid!=null}}'>
+      <view class='placeholder' wx:if='{{groupsIdx==null}}'>选择是否毕业(不可改)</view>
+      <view class='pickertext' wx:else>
+        {{groups[groupsIdx]}}
+        <text class='statictext'> (不可改)</text>
+        </view>
+    </picker>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 学历 -->
+  <view class='row-info'>
+    <text class='row-name'>学历</text>
+    <picker bindchange='educationChange' value='{{eduIdx}}' range='{{education}}'>
+      <view class='placeholder' wx:if='{{eduIdx==null}}'>选择学历</view>
+      <view class='pickertext' wx:else>{{education[eduIdx]}}</view>
+    </picker>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 学校 -->
+  <view class='row-info'>
+    <text class='row-name'>学校</text>
+    <input placeholder='请输入就读/毕业学校' placeholder-class='placeholder2' class='pickertext' value='{{school}}' bindinput='inputSchool'></input>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 爱好 -->
+  <view class='row-info'>
+    <text class='row-name'>爱好</text>
+    <input placeholder='10字以内' placeholder-class='placeholder2' class='pickertext' value='{{hobby}}' bindinput='inputHobby'></input>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 微信 -->
+  <view class='row-info'>
+    <text class='row-name'>微信</text>
+    <input placeholder='请您务必正确填写' placeholder-class='placeholder2' class='pickertext' value='{{wxnum}}' bindinput='inputWxnum'></input>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 手机 -->
+  <view class='row-info'>
+    <text class='row-name'>手机</text>
+    <input placeholder='请输入联系方式' placeholder-class='placeholder2' class='pickertext' value='{{phonenum}}' bindinput='inputPhone'></input>
+  </view>
+
+  <!-- 分割线 -->
+  <view class='line' />
+
+  <!-- 情感照 -->
+  <view class='block-info'>
+    <view bindtap='upload' data-index='1'>
+      <image wx:if='{{hobbyImage==null}}' src="../../image/add-photos.png" mode="aspectFit" class='upload-img' />
+      <image wx:else src="{{hobbyImage}}" mode="aspectFit" class=' upload-img2' />
+    </view>
+
+    <view class='upload-des '>
+      <view>自主上传您喜欢的照片，可以展现</view>
+      <view>您的个人品味，请勿上传个人照，</view>
+      <view>否则无法通过审核</view>
+    </view>
+
+    <view class='img-tip '>
+      <text class='img-title '>图片主题</text>
+      <input placeholder='如书名/歌名/影视名 ' class='img-text ' placeholder-class='img-holder' value='{{hobbyImageTitle}}' bindinput='inputTitle' />
+    </view>
+
+    <view class='img-tip '>
+      <text class='img-title '>情感表达</text>
+      <textarea placeholder="请描述照片表达的情感，让对方更进一步了解您，50字以内" class='img-text ' value='{{hobbyImageDes}}' placeholder-class='img-holder ' style='height:200rpx;padding:8rpx 2rpx; ' bindinput='inputDes' />
+    </view>
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="line" />
+
+  <!-- 上传脸部照片 -->
+  <view class='block-info '>
+    <view bindtap="upload" data-index='2 '>
+      <image wx:if='{{faceImage==null}}' src="../../image/add-photos.png" mode="aspectFit" class='upload-img' />
+      <image wx:else src="{{faceImage}}" mode="aspectFit" class=' upload-img2' />
+    </view>
+
+    <view class='upload-des '>
+      <view>请上传清晰的露脸个人照</view>
+      <view>若面部遮挡，则无法通过审核</view>
+    </view>
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="line" />
+
+  <!-- 上传学生证 -->
+  <view class='block-info'>
+    <view bindtap='upload2'>
+      <image wx:if='{{identityImage==null}}' src="../../image/add-photos.png" mode="aspectFit" class='upload-img' />
+      <image wx:else src="{{identityImage}}" mode="aspectFit" class=' upload-img3' />
+    </view>
+    <view class='upload-des '>
+      <view>在校生请上传学生证/一卡通 ;</view>
+      <view>上班族请上传曾经的</view>
+      <view>学生证/一卡通/学位证书</view>
+    </view>
+  </view>
+
+  <!-- 分隔线 -->
+  <view class="line" />
+
+  <!-- 提交按钮 -->
+  <view class='row-info '>
+    <button class='preview-btn ' bindtap='preview'> 预览 </button>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class='row-info '>
+    <!-- 申请审核 -->
+    <form wx:if='{{userid==null}}' class='submit-from' bindsubmit='submit' report-submit='true'>
+      <button form-type='submit' class='submit-btn'> 申请审核 </button>
+    </form>
+    <!-- 更新 -->
+    <form wx:else class='submit-from' bindsubmit='update' report-submit='true'>
+      <button form-type='submit' class='submit-btn'> 更新 </button>
+    </form>
+  </view>
+
+</view>
