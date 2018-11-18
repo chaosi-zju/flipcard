@@ -16,24 +16,32 @@ import java.io.File;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-
 
 @Controller
 @RequestMapping("/userinfo")
 public class UserController {
 
-    @Value("${driver}") private String driver;
-    @Value("${sqlUrl}") private String sqlUrl;
-    @Value("${dbusername}") private String dbusername;
-    @Value("${dbpassword}") private String dbpassword;
+    @Value("${driver}")
+    private String driver;
+    @Value("${sqlUrl}")
+    private String sqlUrl;
+    @Value("${dbusername}")
+    private String dbusername;
+    @Value("${dbpassword}")
+    private String dbpassword;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
-    @Value("${USER_STATUS_INIT}") private int USER_STATUS_INIT;
-    @Value("${MAX_FLOWER}") private int MAX_FLOWER;        //最大玫瑰数
+    @Value("${USER_STATUS_INIT}")
+    private int USER_STATUS_INIT;
+    @Value("${MAX_FLOWER}")
+    private int MAX_FLOWER;        //最大玫瑰数
+    @Value("${CHANGE_NUM_LITTLE}")
+    private int CHANGE_NUM_LITTLE;
+    @Value("${CHANGE_NUM_MIDDLE}")
+    private int CHANGE_NUM_MIDDLE;
 
     private static Logger errLog = Logger.getLogger("error-log");
 
@@ -71,12 +79,12 @@ public class UserController {
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
             connection.setAutoCommit(false);//开启事务
 
-            String sql1 = "insert into user_info values (0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'',now())";
+            String sql1 = "insert into user_info values (0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'',now())";
             String sql2 = "update wx_info set userid = ? where wx_openid = ?";
 //            String sql3 = "select count(*) as cnt from user_info where gender = 1 " +
 //                    "union all " +
 //                    "select count(*) as cnt from user_info where gender = 2";
-            String sql4 = "insert into timerelied_info values (?,?,?,?,?,'','',now())";
+            String sql4 = "insert into timerelied_info values (?,?,?,?,?,?,?,'','',now())";
 
             preparedStatement = connection.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, USER_STATUS_INIT);    //审核状态
@@ -95,6 +103,7 @@ public class UserController {
             preparedStatement.setString(14, userinfo.get("hobbyImageDes").getAsString());
             preparedStatement.setString(15, userinfo.get("faceImage").getAsString());
             preparedStatement.setString(16, userinfo.get("identityImage").getAsString());
+            preparedStatement.setString(17, userinfo.get("infoFormId").getAsString());
             preparedStatement.executeUpdate();
 
             resultSet = preparedStatement.getGeneratedKeys();
@@ -116,9 +125,16 @@ public class UserController {
                 preparedStatement = connection.prepareStatement(sql4);
                 preparedStatement.setInt(1, userid);
                 preparedStatement.setInt(2, MAX_FLOWER);
-                preparedStatement.setInt(3, userid);
-                preparedStatement.setInt(4, (userinfo.get("gender").getAsInt() == 1 ? 2 : 1));
-                preparedStatement.setString(5, userinfo.get("district").getAsString());
+                //如果是杭州换一批次数给1,其他给0
+                if (userinfo.get("district").getAsString().equals("330100")) {
+                    preparedStatement.setInt(3, CHANGE_NUM_MIDDLE);
+                } else {
+                    preparedStatement.setInt(3, CHANGE_NUM_LITTLE);
+                }
+                preparedStatement.setInt(4, userid);
+                preparedStatement.setInt(5, (userinfo.get("gender").getAsInt() == 1 ? 2 : 1));
+                preparedStatement.setInt(6, userinfo.get("groups").getAsInt());
+                preparedStatement.setString(7, userinfo.get("district").getAsString());
                 preparedStatement.executeUpdate();
 
             } else {
@@ -157,8 +173,10 @@ public class UserController {
     String updateUserInfo(String params) {
 
         JsonObject userinfo;
+        int userid;
         try {
             userinfo = new JsonParser().parse(params).getAsJsonObject();
+            userid = userinfo.get("userid").getAsInt();
         } catch (Exception e) {
             errLog.error("0301: " + e.getMessage() + "，params is: " + params, e);
             return sendRespond("0301", "url参数传递错误", null);
@@ -168,25 +186,31 @@ public class UserController {
             Class.forName(driver);
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
-            String sql = "select district from user_info where userid = ?";
+            String sql1 = "select * from timerelied_info where userid = ?";
             String sql2 = "update user_info set status = ?, gender = ?, groups = ?, education = ?, district = ?, school = ?, birthyear = ?, star = ?, " +
                     "hobby = ?,wxnum = ?, phonenum = ?, hobbyImage = ?,  hobbyImageTitle = ?, hobbyImageDes = ?, faceImage = ?, identityImage = ?, " +
-                    "failReason = '' where userid = ?";
-            String sql3 = "update timerelied_info set commendDist = ? where userid = ?";
+                    "infoFormId = ?, failReason = '' where userid = ?";
+            String sql3 = "update timerelied_info set commendGender = ?, commendGroups = ?, commendDist = ?, " +
+                    "commendIds = '', flippedIds = '' where userid = ?";
 
-            preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, userinfo.get("userid").getAsInt());
+            preparedStatement = connection.prepareStatement(sql1);
+            preparedStatement.setInt(1, userid);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                String oldDistrict = resultSet.getString("district");
-                String newDistrict = userinfo.get("district").getAsString();
+                int commendGender = resultSet.getInt("commendGender");
+                int commendGroups = resultSet.getInt("commendGroups");
+                String commendDist = resultSet.getString("commendDist");
+
+                int gender = userinfo.get("gender").getAsInt();
+                int groups = userinfo.get("groups").getAsInt();
+                String dist = userinfo.get("district").getAsString();
 
                 preparedStatement = connection.prepareStatement(sql2);
                 preparedStatement.setInt(1, USER_STATUS_INIT);    //审核状态
-                preparedStatement.setInt(2, userinfo.get("gender").getAsInt());
-                preparedStatement.setInt(3, userinfo.get("groups").getAsInt());
+                preparedStatement.setInt(2, gender);
+                preparedStatement.setInt(3, groups);
                 preparedStatement.setInt(4, userinfo.get("education").getAsInt());
-                preparedStatement.setString(5, userinfo.get("district").getAsString());
+                preparedStatement.setString(5, dist);
                 preparedStatement.setString(6, userinfo.get("school").getAsString());
                 preparedStatement.setString(7, userinfo.get("birthyear").getAsString());
                 preparedStatement.setString(8, userinfo.get("star").getAsString());
@@ -198,18 +222,24 @@ public class UserController {
                 preparedStatement.setString(14, userinfo.get("hobbyImageDes").getAsString());
                 preparedStatement.setString(15, userinfo.get("faceImage").getAsString());
                 preparedStatement.setString(16, userinfo.get("identityImage").getAsString());
-                preparedStatement.setInt(17, userinfo.get("userid").getAsInt());
+                preparedStatement.setString(17, userinfo.get("infoFormId").getAsString());
+                preparedStatement.setInt(18, userid);
                 preparedStatement.executeUpdate();
 
-                if (!oldDistrict.equals(newDistrict)) {
+                //如果修改了性别或类别或地域
+                if (gender == commendGender || groups != commendGroups || !dist.equals(commendDist)) {
+                    System.out.println(gender == commendGender);
+                    System.out.println(groups != commendGroups);
+                    System.out.println(!dist.equals(commendDist));
                     preparedStatement = connection.prepareStatement(sql3);
-                    preparedStatement.setString(1, newDistrict);
-                    preparedStatement.setInt(2, userinfo.get("userid").getAsInt());
+                    preparedStatement.setInt(1, (gender == 1 ? 2 : 1));
+                    preparedStatement.setInt(2, groups);
+                    preparedStatement.setString(3, dist);
+                    preparedStatement.setInt(4, userid);
                     preparedStatement.executeUpdate();
                 }
-
             } else {
-                throw new Exception("该用户不存在");
+                throw new Exception("不存在该用户，userid为：" + userid);
             }
 
             resultSet.close();
@@ -317,12 +347,17 @@ public class UserController {
                 ques.append("?");
                 if (i != objsIds.size() - 1) ques.append(",");
             }
-            String sql = "select * from user_info where userid in (" + ques + ")";
+            String sql = "select * from user_info where userid in (" + ques + ") " +
+                    "order by field(userid, " + ques + ")";
 
             preparedStatement = connection.prepareStatement(sql);
             //拼接preparedStatement
-            for (int i = 0; i < objsIds.size(); i++) {
+            int objsIdsSize = objsIds.size();
+            for (int i = 0; i < objsIdsSize; i++) {
                 preparedStatement.setInt(i + 1, objsIds.get(i).getAsInt());
+            }
+            for (int i = 0; i < objsIds.size(); i++) {
+                preparedStatement.setInt(objsIdsSize + i + 1, objsIds.get(i).getAsInt());
             }
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -341,7 +376,6 @@ public class UserController {
                 objInfo.addProperty("district", districtMap.get(objInfo.get("district").getAsString()));
 
                 objsInfo.add(objInfo);
-
             }
             resultSet.close();
             preparedStatement.close();
@@ -390,7 +424,7 @@ public class UserController {
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
             String sql = "select userid from wx_info where wx_openid = ?";
-            String sql2 = "insert into wx_info values (0,?,-1,?,?,?,?,?,now())";
+            String sql2 = "insert into wx_info values (0,?,-1,?,?,?,?,?,'',now())";
             String sql3 = "select status,failReason from user_info where userid = ?";
 
             preparedStatement = connection.prepareStatement(sql);
@@ -466,7 +500,7 @@ public class UserController {
             //校验用户名密码
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
-            String sql = "insert into wx_info values (0,?,-1,?,?,?,?,?,now())";
+            String sql = "insert into wx_info values (0,?,-1,?,?,?,?,?,'',now())";
 
             preparedStatement = connection.prepareStatement(sql);
 

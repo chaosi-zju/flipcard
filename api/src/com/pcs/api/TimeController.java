@@ -11,24 +11,36 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.*;
+import java.util.Random;
 
 
 @Controller
 @RequestMapping("/timerelate")
 public class TimeController {
 
-    @Value("${driver}") private String driver;
-    @Value("${sqlUrl}") private String sqlUrl;
-    @Value("${dbusername}") private String dbusername;
-    @Value("${dbpassword}") private String dbpassword;
+    @Value("${driver}")
+    private String driver;
+    @Value("${sqlUrl}")
+    private String sqlUrl;
+    @Value("${dbusername}")
+    private String dbusername;
+    @Value("${dbpassword}")
+    private String dbpassword;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
-    @Value("${MAX_FLOWER}") private int MAX_FLOWER;              //最大玫瑰数
-    @Value("${FLOWER_COST_EVE}") private int FLOWER_COST_EVE;    //每次翻牌消耗玫瑰数
-    @Value("${COMMEND_NUM_EVE}") private int COMMEND_NUM_EVE;    //每次推荐数目
+    @Value("${MAX_FLOWER}")
+    private int MAX_FLOWER;              //最大玫瑰数
+    @Value("${FLOWER_COST_EVE}")
+    private int FLOWER_COST_EVE;    //每次翻牌消耗玫瑰数
+    @Value("${COMMEND_NUM_EVE}")
+    private int COMMEND_NUM_EVE;    //每次推荐数目
+    @Value("${CHANGE_NUM_LITTLE}")
+    private int CHANGE_NUM_LITTLE;  //换一批次数（少）
+    @Value("${CHANGE_NUM_MIDDLE}")
+    private int CHANGE_NUM_MIDDLE;  //换一批次数（中）
 
     private static Logger errLog = Logger.getLogger("error-log");
     private static Logger commonLog = Logger.getLogger("common-log");
@@ -51,16 +63,18 @@ public class TimeController {
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
 
-            String sql = "select flowerNum, flippedIds from timerelied_info where userid = ?";
+            String sql = "select flowerNum, changeNum, flippedIds from timerelied_info where userid = ?";
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, Integer.parseInt(userid));
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 int flowerNum = resultSet.getInt("flowerNum");
+                int changeNum = resultSet.getInt("changeNum");
                 String flippedIds = resultSet.getString("flippedIds");
 
                 resData.addProperty("flowerNum", flowerNum);
+                resData.addProperty("changeNum", changeNum);
                 resData.add("flippedIds", strToArray(flippedIds));
             }
 
@@ -81,7 +95,7 @@ public class TimeController {
     //进入游戏，判断是否要更新玫瑰数和推荐id
     @RequestMapping(value = "/getOrUpdateCommend", method = RequestMethod.GET)
     @ResponseBody
-    String getOrUpdateCommend(String userid) {
+    String getOrUpdateCommend(String userid, String cardFormId) {
 
         if (userid == null || userid.equals("") || userid.equals("undefined") || userid.equals("null")) {
             errLog.error("3301: url参数传递错误，params is: " + userid);
@@ -94,11 +108,17 @@ public class TimeController {
             Class.forName(driver);
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
+            String sql0 = "update wx_info set cardFormId = ? where userid = ?";
             String sql = "select * from timerelied_info where userid = ?";
-            String sql2 = "update timerelied_info set flowerNum = ?, commendId = ?, commendIds = ?, flippedIds = '', updateTime = now() where userid = ?";
+            String sql2 = "update timerelied_info set flowerNum = ?, changeNum = ?, commendId = ?, commendIds = ?, flippedIds = '', updateTime = now() where userid = ?";
             String sql3 = "update timerelied_info set commendIds = ? where userid = ?";
 
             int myid = Integer.parseInt(userid);
+
+            preparedStatement = connection.prepareStatement(sql0);
+            preparedStatement.setString(1, cardFormId);
+            preparedStatement.setInt(2, myid);
+            preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, myid);
@@ -106,8 +126,10 @@ public class TimeController {
             if (resultSet.next()) {
 
                 int flowerNum = resultSet.getInt("flowerNum");
+                int changeNum = resultSet.getInt("changeNum");
                 int commendId = resultSet.getInt("commendId");
                 int commendGender = resultSet.getInt("commendGender");
+                int commendGroups = resultSet.getInt("commendGroups");
                 String commendDist = resultSet.getString("commendDist");
                 JsonArray commendIds = strToArray(resultSet.getString("commendIds"));
 
@@ -124,7 +146,7 @@ public class TimeController {
                 //如果这是今天第一次获取
                 if (lastTimeTmp.before(curTimeTmp)) {
 
-                    JsonObject ids = getAllCommendIds(lastId, commendGender, commendDist, myid, COMMEND_NUM_EVE);
+                    JsonObject ids = getAllCommendIds(lastId, commendGender, commendGroups, commendDist, myid, COMMEND_NUM_EVE);
                     if (ids.get("num").getAsInt() == -1) {
                         throw new Exception("数据库中获取推荐用户id失败");
                     }
@@ -132,15 +154,22 @@ public class TimeController {
                     preparedStatement = connection.prepareStatement(sql2);
                     flowerNum = flowerNum < MAX_FLOWER ? MAX_FLOWER : flowerNum;
                     preparedStatement.setInt(1, flowerNum);
-                    preparedStatement.setInt(2, lastId);
+                    if (commendDist.equals("330100")) {
+                        //如果是杭州，换一批次数更新为1
+                        changeNum = changeNum < CHANGE_NUM_MIDDLE ? CHANGE_NUM_MIDDLE : changeNum;
+                    } else {
+                        changeNum = changeNum < CHANGE_NUM_LITTLE ? CHANGE_NUM_LITTLE : changeNum;
+                    }
+                    preparedStatement.setInt(2, changeNum);
+                    preparedStatement.setInt(3, lastId);
                     commendIds = ids.get("commendIds").getAsJsonArray();
-                    preparedStatement.setString(3, arrayToStr(commendIds));
-                    preparedStatement.setInt(4, Integer.parseInt(userid));
+                    preparedStatement.setString(4, arrayToStr(commendIds));
+                    preparedStatement.setInt(5, myid);
                     preparedStatement.executeUpdate();
                 } else {
                     //如果不是第一次推，需要保证今天推满10个
                     if (size < COMMEND_NUM_EVE) {
-                        JsonObject ids = getAllCommendIds(lastId, commendGender, commendDist, myid, COMMEND_NUM_EVE - size);
+                        JsonObject ids = getAllCommendIds(lastId, commendGender, commendGroups, commendDist, myid, COMMEND_NUM_EVE - size);
                         if (ids.get("num").getAsInt() == -1) {
                             throw new Exception("数据库中获取推荐用户id失败");
                         }
@@ -185,26 +214,99 @@ public class TimeController {
         }
     }
 
+    //换一批，相当于到了新的一天
+    @RequestMapping(value = "/changeBatch", method = RequestMethod.GET)
+    @ResponseBody
+    String changeBatch(String userid) {
+
+        int myid;
+        try {
+            myid = Integer.parseInt(userid);
+        } catch (Exception e) {
+            errLog.error("3701: url参数传递错误，params is: " + userid);
+            return sendRespond("3701", "url参数传递错误", null);
+        }
+
+        JsonObject resData = new JsonObject();
+
+        try {
+            Class.forName(driver);
+            connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
+
+            String sql = "select * from timerelied_info where userid = ?";
+            String sql2 = "update timerelied_info set changeNum = changeNum-1, commendId = ?, commendIds = ?, flippedIds = '', updateTime = now() where userid = ?";
+
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, myid);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+
+                int changeNum = resultSet.getInt("changeNum");
+                if (changeNum <= 0) {
+                    throw new Exception("changeNum不足，为" + changeNum);
+                }
+                int commendId = resultSet.getInt("commendId");
+                int commendGender = resultSet.getInt("commendGender");
+                int commendGroups = resultSet.getInt("commendGroups");
+                String commendDist = resultSet.getString("commendDist");
+                JsonArray commendIds = strToArray(resultSet.getString("commendIds"));
+
+                int size = commendIds.size();
+                int lastId = (size == 0 ? commendId : commendIds.get(size - 1).getAsInt());
+
+                JsonObject ids = getAllCommendIds(lastId, commendGender, commendGroups, commendDist, myid, COMMEND_NUM_EVE);
+                if (ids.get("num").getAsInt() == -1) {
+                    throw new Exception("数据库中获取推荐用户id失败");
+                }
+
+                preparedStatement = connection.prepareStatement(sql2);
+                preparedStatement.setInt(1, lastId);
+                commendIds = ids.get("commendIds").getAsJsonArray();
+                preparedStatement.setString(2, arrayToStr(commendIds));
+                preparedStatement.setInt(3, myid);
+                preparedStatement.executeUpdate();
+
+                resData.add("commendIds", commendIds);
+                resData.addProperty("changeNum", changeNum - 1);
+
+            } else {
+                throw new Exception("用户不存在，userid为" + userid);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
+            return sendRespond("0000", "success", resData);
+
+        } catch (Exception e) {
+            errLog.error("3702: " + e.getMessage() + "，params is: " + userid, e);
+            return sendRespond("3702", e.getMessage(), null);
+        }
+    }
+
     //获取所有推荐Id
     //获取异性、获取通过审核的人、不能是自己、不能是自己已经发过卡片的人
-    private JsonObject getAllCommendIds(int commendId, int commendGender, String commendDist, int myid, int limitNum) {
+    private JsonObject getAllCommendIds(int commendId, int commendGender, int commendGroups, String commendDist,
+                                        int myid, int limitNum) {
         JsonObject obj = new JsonObject();
         try {
             Class.forName(driver);
             connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
 
-            String sql = "select userid from user_info where status = 1 and gender = ? and district = ? and userid > 0 and userid < ? and userid != ? and userid not in " +
+            String sql = "select userid from user_info where status = 1 and gender = ? and groups = ? and district = ? and userid > 0 and userid < ? and userid != ? and userid not in " +
                     "(select recvId as userid from relation_info where sendId = ?) order by userid desc limit ? ";
-            String sql2 = "select userid from user_info where status = 1 and gender = ? and district = ? and userid >= ? and userid != ? and userid not in " +
+            String sql2 = "select userid from user_info where status = 1 and gender = ? and groups = ? and district = ? and userid >= ? and userid != ? and userid not in " +
                     "(select recvId as userid from relation_info where sendId = ?) order by userid desc limit ? ";
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, commendGender);
-            preparedStatement.setString(2, commendDist);
-            preparedStatement.setInt(3, commendId);
-            preparedStatement.setInt(4, myid);
+            preparedStatement.setInt(2, commendGroups);
+            preparedStatement.setString(3, commendDist);
+            preparedStatement.setInt(4, commendId);
             preparedStatement.setInt(5, myid);
-            preparedStatement.setInt(6, limitNum);
+            preparedStatement.setInt(6, myid);
+            preparedStatement.setInt(7, limitNum);
 
 //            commonLog.info(preparedStatement.toString());
 
@@ -218,11 +320,12 @@ public class TimeController {
             if (cnt < limitNum) {
                 preparedStatement = connection.prepareStatement(sql2);
                 preparedStatement.setInt(1, commendGender);
-                preparedStatement.setString(2, commendDist);
-                preparedStatement.setInt(3, commendId);
-                preparedStatement.setInt(4, myid);
+                preparedStatement.setInt(2, commendGroups);
+                preparedStatement.setString(3, commendDist);
+                preparedStatement.setInt(4, commendId);
                 preparedStatement.setInt(5, myid);
-                preparedStatement.setInt(6, limitNum - cnt);
+                preparedStatement.setInt(6, myid);
+                preparedStatement.setInt(7, limitNum - cnt);
 //                commonLog.info(preparedStatement.toString());
 
                 resultSet = preparedStatement.executeQuery();
@@ -242,6 +345,77 @@ public class TimeController {
             errLog.error(e.getMessage() + "，getAllCommendIds: " + commendId + "," + commendGender + "," + myid, e);
             obj.addProperty("num", -1);
             return obj;
+        }
+    }
+
+    //游客模式，随即分配10张卡片
+    @RequestMapping(value = "/getRandomCommend", method = RequestMethod.GET)
+    @ResponseBody
+    String getRandomCommend(int commendGender) {
+
+        if (commendGender != 1 && commendGender != 2) {
+            errLog.error("3601: url参数传递错误，gender is: " + commendGender);
+            return sendRespond("3601", "url参数传递错误", null);
+        }
+
+        JsonObject resData = new JsonObject();
+
+        try {
+            Class.forName(driver);
+            connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
+
+
+            String sql1 = "select userid from user_info order by userid desc limit 1";
+            String sql2 = "select userid from user_info where status = 1 and gender = ? " +
+                    "and userid > 0 and userid < ? order by userid desc limit ? ";
+            String sql3 = "select userid from user_info where status = 1 and gender = ? " +
+                    "and userid >= ? order by userid desc limit ? ";
+
+            preparedStatement = connection.prepareStatement(sql1);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int maxId = resultSet.getInt("userid");
+                int randomId = new Random().nextInt(maxId) + 1;
+
+                preparedStatement = connection.prepareStatement(sql2);
+                preparedStatement.setInt(1, commendGender);
+                preparedStatement.setInt(2, randomId);
+                preparedStatement.setInt(3, COMMEND_NUM_EVE);
+                resultSet = preparedStatement.executeQuery();
+
+                JsonArray commendIds = new JsonArray();
+                JsonParser parser = new JsonParser();
+                while (resultSet.next()) {
+                    commendIds.add(parser.parse(resultSet.getObject(1).toString()));
+                }
+                int cnt = commendIds.size();
+                if (cnt < COMMEND_NUM_EVE) {
+                    preparedStatement = connection.prepareStatement(sql3);
+                    preparedStatement.setInt(1, commendGender);
+                    preparedStatement.setInt(2, randomId);
+                    preparedStatement.setInt(3, COMMEND_NUM_EVE - cnt);
+                    resultSet = preparedStatement.executeQuery();
+
+                    while (resultSet.next()) {
+                        commendIds.add(parser.parse(resultSet.getObject(1).toString()));
+                    }
+                }
+
+                resData.add("commendIds", commendIds);
+
+            } else {
+                throw new Exception("sql error , sql: " + sql1);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
+            return sendRespond("0000", "success", resData);
+
+        } catch (Exception e) {
+            errLog.error("3602: " + e.getMessage() + "，gender is: " + commendGender, e);
+            return sendRespond("3602", e.getMessage(), null);
         }
     }
 

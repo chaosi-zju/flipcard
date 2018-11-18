@@ -21,7 +21,7 @@
     </context-param>
     <context-param>
         <param-name>webAppRootKey</param-name>
-        <param-value>flipcardv3</param-value>
+        <param-value>flipcard</param-value>
     </context-param>
     <!--Spring log4j Config loader-->
     <listener>

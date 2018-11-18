@@ -3,6 +3,11 @@ package com.pcs.api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.RequestBody;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -10,21 +15,34 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Value("${driver}") private String driver;
-    @Value("${sqlUrl}") private String sqlUrl;
-    @Value("${dbusername}") private String dbusername;
-    @Value("${dbpassword}") private String dbpassword;
+    @Value("${driver}")
+    private String driver;
+    @Value("${sqlUrl}")
+    private String sqlUrl;
+    @Value("${dbusername}")
+    private String dbusername;
+    @Value("${dbpassword}")
+    private String dbpassword;
+
+    @Value("${wxAppid}")
+    private String wxAppid;
+    @Value("${wxAppsecret}")
+    private String wxAppsecret;
+    @Value("${infoInformTemplateId}")
+    private String infoInformTemplateId;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
 
+    private static final String statusArr[] = {"正在审核中", "已通过", "未通过"};
     private static Logger errLog = Logger.getLogger("error-log");
 
 
@@ -274,9 +292,14 @@ public class AdminController {
     @ResponseBody
     String checkUser(String params) {
 
-        JsonObject user;
+        int userid, status;
+        String failReason;
+
         try {
-            user = new JsonParser().parse(params).getAsJsonObject();
+            JsonObject user = new JsonParser().parse(params).getAsJsonObject();
+            userid = user.get("userid").getAsInt();
+            status = user.get("status").getAsInt();
+            failReason = user.get("failReason").getAsString();
         } catch (Exception e) {
             errLog.error("5301: " + e.getMessage() + "，params is: " + params, e);
             return sendRespond("5301", "url参数传递错误", null);
@@ -291,10 +314,12 @@ public class AdminController {
             String sql = "update user_info set status = ?, failReason = ? where userid = ?";
 
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, user.get("status").getAsInt());
-            preparedStatement.setString(2, user.get("failReason").getAsString());
-            preparedStatement.setInt(3, user.get("userid").getAsInt());
+            preparedStatement.setInt(1, status);
+            preparedStatement.setString(2, failReason);
+            preparedStatement.setInt(3, userid);
             preparedStatement.executeUpdate();
+
+            informUserPassed(userid, status, failReason);
 
             preparedStatement.close();
             connection.close();
@@ -307,7 +332,88 @@ public class AdminController {
         }
     }
 
-    //审核用户
+    private void informUserPassed(int userid, int status, String failReason) {
+        JsonObject postParam = new JsonObject();
+
+        try {
+            String access_token;
+
+            //获取被审核用户的openid和formId
+            String sql = "select wx_openid, infoFormId from wx_info inner join user_info on " +
+                    "wx_info.userid = ? && user_info.userid = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userid);
+            preparedStatement.setInt(2, userid);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                //封装postParam基本信息
+                postParam.addProperty("touser", resultSet.getString("wx_openid"));
+                postParam.addProperty("template_id", infoInformTemplateId);
+                postParam.addProperty("page", "/pages/index/index");
+                postParam.addProperty("form_id", resultSet.getString("infoFormId"));
+
+                //封装postParam的keywords
+                JsonObject data = new JsonObject();
+
+                JsonObject keyword1 = new JsonObject();
+                keyword1.addProperty("value", "您的资料审核" + statusArr[status]);
+                data.add("keyword1", keyword1);
+
+                if (status == 2) {
+                    JsonObject keyword2 = new JsonObject();
+                    keyword2.addProperty("value", failReason);
+                    data.add("keyword2", keyword2);
+                }
+
+                JsonObject keyword3 = new JsonObject();
+                keyword3.addProperty("value", "脉言——沙脉科技有限公司");
+                data.add("keyword3", keyword3);
+
+                JsonObject keyword4 = new JsonObject();
+                if (status == 1) {
+                    keyword4.addProperty("value", "恭喜您的资料审核通过，马上开始您的翻牌子之旅吧！");
+                } else {
+                    keyword4.addProperty("value", "您离成功只差一点点啦，资料稍稍更新一下就可以一起来翻牌子啦！");
+                }
+                data.add("keyword4", keyword4);
+                postParam.add("data", data);
+
+            } else {
+                errLog.error("5304: 没有获取到被审核用户的wx_openid和infoFormId，用户id为：" + userid);
+                throw new Exception("没有获取到被审核用户的wx_openid和infoFormId");
+            }
+
+            OkHttpClient client = new OkHttpClient();
+
+            //获取小程序token
+            String url1 = "https://api.weixin.qq.com/cgi-bin/token?" +
+                    "grant_type=client_credential&appid=" + wxAppid + "&secret=" + wxAppsecret;
+            Request req1 = new Request.Builder().url(url1).build();
+            Response res1 = client.newCall(req1).execute();
+
+            if (res1.isSuccessful()) {
+                JsonObject data = new JsonParser().parse(res1.body().string()).getAsJsonObject();
+                access_token = data.get("access_token").getAsString();
+
+                String url2 = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?" +
+                        "access_token=" + access_token;
+                MediaType mediaType = MediaType.parse("application/json");
+                RequestBody requestBody = RequestBody.create(mediaType, postParam.toString());
+                Request req2 = new Request.Builder().post(requestBody).url(url2).build();
+                Response res2 = client.newCall(req2).execute();
+
+                if (!res2.isSuccessful()) {
+                    throw new Exception("发送模板消息 request not successful");
+                }
+            } else {
+                throw new Exception("获取小程序token request not successful");
+            }
+        } catch (Exception e) {
+            errLog.error("5303: " + e.getMessage() + "，postParam is: " + postParam.toString(), e);
+        }
+    }
+
+    //删除用户
     @RequestMapping(value = "/deleteUser", method = RequestMethod.GET)
     @ResponseBody
     String deleteUser(String userid) {
