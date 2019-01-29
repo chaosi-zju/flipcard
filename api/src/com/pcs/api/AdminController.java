@@ -349,7 +349,7 @@ public class AdminController {
                 //封装postParam基本信息
                 postParam.addProperty("touser", resultSet.getString("wx_openid"));
                 postParam.addProperty("template_id", infoInformTemplateId);
-                postParam.addProperty("page", "/pages/index/index");
+                postParam.addProperty("page", "pages/index/index");
                 postParam.addProperty("form_id", resultSet.getString("infoFormId"));
 
                 //封装postParam的keywords
@@ -404,6 +404,12 @@ public class AdminController {
 
                 if (!res2.isSuccessful()) {
                     throw new Exception("发送模板消息 request not successful");
+                } else {
+                    JsonObject jo = new JsonParser().parse(res2.body().string()).getAsJsonObject();
+                    int errcode = jo.get("errcode").getAsInt();
+                    if (errcode != 0 && errcode != 40003 && errcode != 41028 && errcode != 41029) {
+                        errLog.error("5304: 发送模板消息失败，返回值:" + jo.toString() + "，postParam:" + postParam.toString());
+                    }
                 }
             } else {
                 throw new Exception("获取小程序token request not successful");

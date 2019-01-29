@@ -41,6 +41,8 @@ public class TimeController {
     private int CHANGE_NUM_LITTLE;  //换一批次数（少）
     @Value("${CHANGE_NUM_MIDDLE}")
     private int CHANGE_NUM_MIDDLE;  //换一批次数（中）
+    @Value("${GIVE_FLOWER_EVE_NUM}")
+    private int GIVE_FLOWER_EVE_NUM;  //每次赠送玫瑰数
 
     private static Logger errLog = Logger.getLogger("error-log");
     private static Logger commonLog = Logger.getLogger("common-log");
@@ -603,7 +605,7 @@ public class TimeController {
 
                 if (!hasRecord || !isTodayRecord) {
                     preparedStatement = connection.prepareStatement(sql4);
-                    preparedStatement.setInt(1, 1);
+                    preparedStatement.setInt(1, GIVE_FLOWER_EVE_NUM);
                     preparedStatement.setInt(2, toid);
                     preparedStatement.executeUpdate();
                 }
