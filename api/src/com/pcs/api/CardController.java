@@ -200,7 +200,7 @@ public class CardController {
                 data.add("keyword2", keyword2);
 
                 JsonObject keyword3 = new JsonObject();
-                keyword3.addProperty("value", "脉言——沙脉科技有限公司");
+                keyword3.addProperty("value", "脉言——含情脉脉只为你");
                 data.add("keyword3", keyword3);
 
                 postParam.add("data", data);
@@ -285,10 +285,16 @@ public class CardController {
 
 
             String sql = "insert into relation_info values (0,?,?,0,now())";
+            String sql2 = "update timerelied_info set flowerNum = flowerNum - ? where userid = ?";
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userids.get("sendId").getAsInt());
             preparedStatement.setInt(2, userids.get("recvId").getAsInt());
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement(sql2);
+            preparedStatement.setInt(1, 2);
+            preparedStatement.setInt(2, userids.get("sendId").getAsInt());
             preparedStatement.executeUpdate();
 
             informRecvCard(userids.get("recvId").getAsInt());
@@ -341,7 +347,7 @@ public class CardController {
                 data.add("keyword2", keyword2);
 
                 JsonObject keyword3 = new JsonObject();
-                keyword3.addProperty("value", "脉言——沙脉科技有限公司");
+                keyword3.addProperty("value", "脉言——含情脉脉只为你");
                 data.add("keyword3", keyword3);
 
                 postParam.add("data", data);

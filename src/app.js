@@ -11,7 +11,8 @@ App({
     wx_info: null,
     userid: null,
     userstatus: null,
-    failReason: null
+    failReason: null,
+    matchNum: null
   },
   onLaunch: function() {
 
@@ -98,6 +99,7 @@ App({
           that.globalData.userstatus = result.userstatus
           that.globalData.userid = result.userid
           that.globalData.failReason = result.failReason
+          that.globalData.matchNum = result.matchNum
           resolve()
         })
       } else {

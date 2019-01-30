@@ -84,7 +84,7 @@ Page({
               curRelation: result.curRelation
             })
             wx.hideLoading()
-          }, 500)
+          }, 600)
           //如果没翻过，玫瑰又不够
         } else if (!result.flowerEnough) {
           that.setData({
@@ -92,7 +92,7 @@ Page({
           })
           //如果没翻过，玫瑰够
         } else {
-          util.loading(wx, '首次翻 玫瑰 -2')
+          util.loading(wx, '首次翻 玫瑰-1')
           //翻开新的要重新计算flowerNum和flippedIds
           that.setData({
             flowerNum: result.flowerNum,
@@ -106,7 +106,7 @@ Page({
               frontHide: true,
             })
             wx.hideLoading()
-          }, 500)
+          }, 600)
         }
       }, true)
     }
@@ -154,9 +154,10 @@ Page({
             setTimeout(function () {
               wx.hideLoading();
               that.setData({
-                curRelation: 0
+                curRelation: 0,
+                flowerNum: that.data.flowerNum - 2
               })
-              util.toast(wx, '发送成功', 1000)
+              util.toast(wx, '发送成功 玫瑰-2', 1000)
             }, 500)
           }, true)
         }

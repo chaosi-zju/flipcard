@@ -20,6 +20,7 @@ const BugData = AV.Object.extend('bugdata')
 // const host = 'http://192.168.191.2:8080'
 // const host = 'http://172.28.218.2:8080'
 // const host = 'http://192.168.199.236:8080'
+// const host = 'http://localhost:8080'
 // const domain = host
 
 const host = 'https://tomcat-sslapi.smoyan.com'

@@ -426,6 +426,7 @@ public class UserController {
             String sql = "select userid from wx_info where wx_openid = ?";
             String sql2 = "insert into wx_info values (0,?,-1,?,?,?,?,?,'',now())";
             String sql3 = "select status,failReason from user_info where userid = ?";
+            String sql4 = "select count(*) as matchNum from relation_info where status = 1;";
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, wxinfo.get("wx_openid").getAsString());
@@ -465,6 +466,14 @@ public class UserController {
                 resData.add("userid", null);
                 resData.addProperty("userstatus", -1);
                 resData.add("failReason", null);
+            }
+
+            //累计建立安全连接数
+            preparedStatement = connection.prepareStatement(sql4);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int matchNum = resultSet.getInt("matchNum");
+                resData.addProperty("matchNum", matchNum * 2);
             }
 
             resultSet.close();

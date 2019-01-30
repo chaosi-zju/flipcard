@@ -138,8 +138,8 @@
     </view>
 
     <view class='img-tip '>
-      <text class='img-title '>图片主题</text>
-      <input placeholder='如书名/歌名/影视名 ' class='img-text ' placeholder-class='img-holder' value='{{hobbyImageTitle}}' bindinput='inputTitle' />
+      <text class='img-title '>书名/歌名/影视名/自创主题</text>
+      <input placeholder='书名/歌名/影视名/自创主题' class='img-text ' placeholder-class='img-holder' value='{{hobbyImageTitle}}' bindinput='inputTitle' />
     </view>
 
     <view class='img-tip '>

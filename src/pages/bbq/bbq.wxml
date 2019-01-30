@@ -1,0 +1,2 @@
+<!--pages/bbq/bbq.wxml-->
+<web-view src="https://bbq.smoyan.com"></web-view>

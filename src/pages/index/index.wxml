@@ -4,39 +4,46 @@
   <!-- logo -->
   <view class="logo" bindtap='tapAdmin' bindtouchstart='touchStart' bindtouchend='touchEnd'>
     <image src="../../image/logo.png" class="logo-image" />
-    <text class="logo-name">开始心的看脸时代</text>
+    <text class="logo-name">更安全，为脱单而生</text>
+  </view>
+
+  <view class='match-num'>
+    <text>为单身建立安全连接：{{matchNum}} 次</text>
   </view>
 
   <!-- 玩法介绍 -->
-  <view style='margin-top:90rpx;'>
+  <view style='margin-top:77rpx;width:210rpx;'>
     <button open-type="getUserInfo" bindgetuserinfo="getUserInfo" class='btn'>玩法介绍</button>
   </view>
 
   <!-- 个人资料 -->
-  <view style='margin-top:50rpx;'>
+  <view style='margin-top:50rpx;width:210rpx;'>
     <button bindtap='getPersonal' class='btn'>个人资料</button>
     <text style='font-size:23rpx;' wx:if="{{userstatus==0}}">审核中</text>
     <text style='font-size:23rpx;' wx:elif="{{userstatus==2}}">审核未通过</text>
     <text style='font-size:23rpx;' wx:else></text>
   </view>
 
-  <!-- 分隔线 -->
-  <view class='line' />
+  <!-- 表白墙 -->
+  <view style='margin-top:50rpx;width:210rpx;'>
+    <button bindtap="enterBBQ" class='btn'>表白墙</button>
+  </view>
 
   <!-- 我已就位 -->
   <form bindsubmit='canEnterApp' report-submit='true'>
       <button form-type='submit' class='enter-btn' >我已就位</button>
   </form>
 
+
   <!-- 用户须知 -->
   <checkbox-group bindchange='boxChanged' class='need-know'>
     <checkbox checked="{{ruleChecked}}" />
-    <text bindtap='needKnow' style='font-size:26rpx'>用户须知</text>
+    <text bindtap='needKnow' style='font-size:25rpx'>用户须知</text>
   </checkbox-group>
 
   <view class='copyright'>
     <text style='margin-right: 20rpx;'>© 2018 脉言</text>
-    <text>v4.0</text>
+    <text>v4.3</text>
   </view>
 
 </view>

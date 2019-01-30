@@ -10,7 +10,8 @@
     "pages/main/main",
     "pages/detail/detail",
     "pages/personal/upload/upload",
-    "pages/admin/detail/detail"
+    "pages/admin/detail/detail",
+    "pages/bbq/bbq"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -13,6 +13,7 @@ Page({
     touchEndTime: 0,
     lastTapTime: 0,
     cardFormId: null,
+    matchNum: 0
   },
   onLoad: function () {
     this.refresh(function () { })
@@ -102,6 +103,11 @@ Page({
       } else {
         util.toast(wx, '纳尼！我们没有获取到您的小程序openid，请联系我们的公众号反馈一下！', 2000)
       }
+    })
+  },
+  enterBBQ: function(){
+    wx.navigateTo({
+      url: '../bbq/bbq'
     })
   },
   //进入小程序
@@ -242,7 +248,8 @@ Page({
       .then(function () {
         that.setData({
           userid: app.globalData.userid,
-          userstatus: app.globalData.userstatus
+          userstatus: app.globalData.userstatus,
+          matchNum: app.globalData.matchNum
         })
         func()
       })
