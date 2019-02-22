@@ -11,7 +11,8 @@
     "pages/detail/detail",
     "pages/personal/upload/upload",
     "pages/admin/detail/detail",
-    "pages/bbq/bbq"
+    "pages/bbq/bbq",
+    "pages/test/test"
   ],
   "window": {
     "backgroundTextStyle": "light",

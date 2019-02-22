@@ -18,7 +18,6 @@ public class IndexController {
 
     @Value("${wxAppid}") private String wxAppid;
     @Value("${wxAppsecret}") private String wxAppsecret;
-    @Value("${isNetWorking}") private boolean isNetWorking;
 
     private static Logger errLog = Logger.getLogger("error-log");
 
@@ -56,15 +55,6 @@ public class IndexController {
             return sendRespond("0102", "获取openid失败", null);
         }
 
-        return sendRespond("0000", "success", resData);
-    }
-
-    //判断是否在逃避审核
-    @RequestMapping(value = "/isNetWorking", method = RequestMethod.GET)
-    @ResponseBody
-    String isNetWorking() {
-        JsonObject resData = new JsonObject();
-        resData.addProperty("netOk", isNetWorking);
         return sendRespond("0000", "success", resData);
     }
 

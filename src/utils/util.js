@@ -24,7 +24,7 @@ const BugData = AV.Object.extend('bugdata')
 // const domain = host
 
 const host = 'https://tomcat-sslapi.smoyan.com'
-const domain = host+'/flipcard'
+const domain = host+'/flipcardv2'
 
 const request = function(wx, url, data, func, noloading) {
 

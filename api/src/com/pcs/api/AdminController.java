@@ -37,6 +37,8 @@ public class AdminController {
     private String wxAppsecret;
     @Value("${infoInformTemplateId}")
     private String infoInformTemplateId;
+    @Value("${isNetWorking}")
+    private boolean isNetWorking;
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
@@ -45,6 +47,39 @@ public class AdminController {
     private static final String statusArr[] = {"正在审核中", "已通过", "未通过"};
     private static Logger errLog = Logger.getLogger("error-log");
 
+    //判断是否在逃避审核
+    @RequestMapping(value = "/isNetWorking", method = RequestMethod.GET)
+    @ResponseBody
+    String isNetWorking() {
+
+        JsonObject resData = new JsonObject();
+        resData.addProperty("netOk", isNetWorking);
+
+        try{
+            //数据库初始化
+            Class.forName(driver);
+            //校验用户名密码
+            connection = DriverManager.getConnection(sqlUrl, dbusername, dbpassword);
+
+            //累计建立安全连接数
+            String sql = "select count(*) as matchNum from relation_info where status = 1;";
+            preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int matchNum = resultSet.getInt("matchNum");
+                resData.addProperty("matchNum", matchNum * 2);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
+            return sendRespond("0000", "success", resData);
+        }catch(Exception e) {
+            errLog.error("5701: " + e.getMessage(), e);
+            return sendRespond("5701", e.getMessage(), null);
+        }
+    }
 
     //0未通过管理员  1通过管理员
     @RequestMapping(value = "/isAdmin", method = RequestMethod.GET)

@@ -1,0 +1,15 @@
+<!--pages/test/test.wxml-->
+
+<view class='main-container' wx:if="{{testid==1}}">
+  <view class='title'>功能</view>
+  <view class='text'>本小程序为企业内部用户信息查询工具，请您上传真实信息方便统计用户信息</view>
+</view>
+
+<view class='main-container' wx:elif="{{testid==2}}">
+  <view class='title'>待开发</view>
+</view>
+
+<view class='main-container' wx:elif="{{testid==3}}">
+  <view class='title'>我已就位</view>
+  <view class='text'>待开发</view>
+</view>

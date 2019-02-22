@@ -13,11 +13,19 @@ Page({
     touchEndTime: 0,
     lastTapTime: 0,
     cardFormId: null,
+    netOk: true,
     matchNum: 0
   },
   onLoad: function () {
-    this.refresh(function () { })
-
+    var that = this
+    //判断是否正在审核小程序
+    util.request(wx, '/admin/isNetWorking', {}, function (result) {
+      that.setData({
+        netOk: result.netOk,
+        matchNum: result.matchNum
+      })
+      that.refresh(function () { })
+    })
   },
   //点击玩法介绍，记录用户wx_info，所以如果无wx_info就没看玩法介绍
   getUserInfo: function (e) {
@@ -40,9 +48,15 @@ Page({
             userid: app.globalData.userid,
             userstatus: app.globalData.userstatus
           })
-          wx.navigateTo({
-            url: '../rule/introduce/introduce'
-          })
+          if (that.data.netOk){
+            wx.navigateTo({
+              url: '../rule/introduce/introduce'
+            })
+          }else{
+            wx.navigateTo({
+              url: '../test/test?testid=1'
+            })
+          }
         })
     }
   },
@@ -106,12 +120,24 @@ Page({
     })
   },
   enterBBQ: function(){
-    wx.navigateTo({
-      url: '../bbq/bbq'
-    })
+    if (this.data.netOk) {
+      wx.navigateTo({
+        url: '../bbq/bbq'
+      })
+    } else {
+      wx.navigateTo({
+        url: '../test/test?testid=2'
+      })
+    }
   },
   //进入小程序
   enterApp: function (func) {
+    if(!this.data.netOk){
+      wx.navigateTo({
+        url: '../test/test?testid=3'
+      })
+      return;
+    }
     util.request(wx, '/timerelate/getOrUpdateCommend', {
       userid: app.globalData.userid,
       cardFormId: this.data.cardFormId
@@ -125,6 +151,12 @@ Page({
   },
   //游客访问
   visitApp: function (status, msg, cancelTxt) {
+    if (!this.data.netOk) {
+      wx.navigateTo({
+        url: '../test/test?testid=3'
+      })
+      return;
+    }
     var that = this
     var wx_info = app.globalData.wx_info
     wx.showModal({
@@ -248,8 +280,7 @@ Page({
       .then(function () {
         that.setData({
           userid: app.globalData.userid,
-          userstatus: app.globalData.userstatus,
-          matchNum: app.globalData.matchNum
+          userstatus: app.globalData.userstatus
         })
         func()
       })

@@ -99,7 +99,6 @@ App({
           that.globalData.userstatus = result.userstatus
           that.globalData.userid = result.userid
           that.globalData.failReason = result.failReason
-          that.globalData.matchNum = result.matchNum
           resolve()
         })
       } else {

@@ -4,10 +4,10 @@
   <!-- logo -->
   <view class="logo" bindtap='tapAdmin' bindtouchstart='touchStart' bindtouchend='touchEnd'>
     <image src="../../image/logo.png" class="logo-image" />
-    <text class="logo-name">更安全，为脱单而生</text>
+    <text class="logo-name" hidden='{{!netOk}}'>更安全，为脱单而生</text>
   </view>
 
-  <view class='match-num'>
+  <view class='match-num' hidden='{{!netOk}}'>
     <text>为单身建立安全连接：{{matchNum}} 次</text>
   </view>
 
@@ -25,7 +25,7 @@
   </view>
 
   <!-- 表白墙 -->
-  <view style='margin-top:50rpx;width:210rpx;'>
+  <view style='margin-top:50rpx;width:210rpx;' hidden='{{!netOk}}'>
     <button bindtap="enterBBQ" class='btn'>表白墙</button>
   </view>
 

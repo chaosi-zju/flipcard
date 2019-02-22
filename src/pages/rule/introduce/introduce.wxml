@@ -1,23 +1,21 @@
-<view wx:if="{{netOk}}">
-
-  <view class='main-container'>
-    <view class='title'>简介：</view>
-    <view class='text'>
-      <text>脉言-翻牌子旨在打造一个高安全感异性认识平台，且让大家快速完成精神和颜值的双向匹配。
+<view class='main-container'>
+  <view class='title'>简介：</view>
+  <view class='text'>
+    <text>脉言-翻牌子旨在打造一个高安全感异性认识平台，且让大家快速完成精神和颜值的双向匹配。
 
     </text>
-    </view>
+  </view>
 
-    <view class='title'>核心玩法：</view>
-    <view class='text'>
-      <text>制作一张卡片，正面和反面，正面重点展示个人品味(精神世界)，反面重点展示颜值及个人信息。系统每天会派发十张不同的卡片给用户，用户均可查看卡片正面，用户每天拥有十朵玫瑰，可以查看卡片对应的反面信息，翻一次，消耗一朵玫瑰。若对卡片反面感兴趣，可以向ta发送你的卡片，再次消耗两朵玫瑰，对方同意后，便可交换微信号。 
+  <view class='title'>核心玩法：</view>
+  <view class='text'>
+    <text>制作一张卡片，正面和反面，正面重点展示个人品味(精神世界)，反面重点展示颜值及个人信息。系统每天会派发十张不同的卡片给用户，用户均可查看卡片正面，用户每天拥有十朵玫瑰，可以查看卡片对应的反面信息，翻一次，消耗一朵玫瑰。若对卡片反面感兴趣，可以向ta发送你的卡片，再次消耗两朵玫瑰，对方同意后，便可交换微信号。 
 
     </text>
-    </view>
+  </view>
 
-    <view class='title'>注意事项：</view>
-    <view class='text'>
-      <text>(1) 必须点击"玩法介绍"按钮，阅读使用说明。 
+  <view class='title'>注意事项：</view>
+  <view class='text'>
+    <text>(1) 必须点击"玩法介绍"按钮，阅读使用说明。 
     (2) 点击"个人资料"按钮，必须填写个人资料，完成审核才可以进入小程序。 
     (3) 微信号是在双向匹配时使用，务必保证准确，确保双方能够联系，电话号码是用作平台联系你的紧急方式，请准确填写。
     (4) 学校请填写全称。 
@@ -25,41 +23,32 @@
     (6) 可以点击预览，查看卡片效果。以上信息可以更改(除性别和年龄)，但再次申请审核需要一定的时间(72小时内)，请慎重决定。
 
     </text>
-    </view>
-
-    <view class='title'>示例：</view>
-    <view class='imglist'>
-      <view class='imgpanel'>
-        <image src='../../../image/zheng.jpg' mode="aspectFit" class='img' />
-        <view>卡片正面预览</view>
-      </view>
-      <view class='imgpanel'>
-        <image src='../../../image/fan.jpg' mode="aspectFit" class='img' />
-        <view>卡片反面预览</view>
-      </view>
-      <view class='imgpanel'>
-        <image src='../../../image/main.jpg' mode="aspectFit" class='img' />
-        <view>翻牌子主页</view>
-      </view>
-    </view>
   </view>
 
-  <!-- 底部 -->
-  <view class='bottom-container' hidden='{{fromId==null}}'>
-    <view class='op-view'>
-      <button open-type="getUserInfo" bindgetuserinfo="sendFlower" class='recv-btn' style='color:red;'> 赠送玫瑰 </button>
+  <view class='title'>示例：</view>
+  <view class='imglist'>
+    <view class='imgpanel'>
+      <image src='../../../image/zheng.jpg' mode="aspectFit" class='img' />
+      <view>卡片正面预览</view>
     </view>
-
-    <view class='op-view'>
-      <button open-type="getUserInfo" bindgetuserinfo="enterApp" class='recv-btn' style='color:blue;'> 我也要玩 </button>
+    <view class='imgpanel'>
+      <image src='../../../image/fan.jpg' mode="aspectFit" class='img' />
+      <view>卡片反面预览</view>
+    </view>
+    <view class='imgpanel'>
+      <image src='../../../image/main.jpg' mode="aspectFit" class='img' />
+      <view>翻牌子主页</view>
     </view>
   </view>
-
 </view>
 
-<view wx:else>
-  <view class='main-container'>
-    <view class='title'>功能</view>
-    <view class='text'>本小程序为企业内部用户信息查询工具，请您上传真实信息方便统计用户信息</view>
+<!-- 底部 -->
+<view class='bottom-container' hidden='{{fromId==null}}'>
+  <view class='op-view'>
+    <button open-type="getUserInfo" bindgetuserinfo="sendFlower" class='recv-btn' style='color:red;'> 赠送玫瑰 </button>
+  </view>
+
+  <view class='op-view'>
+    <button open-type="getUserInfo" bindgetuserinfo="enterApp" class='recv-btn' style='color:blue;'> 我也要玩 </button>
   </view>
 </view>

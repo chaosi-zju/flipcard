@@ -5,8 +5,7 @@ const util = require('../../../utils/util.js')
 Page({
 
   data: {
-    fromId: null,
-    netOk: true
+    fromId: null
   },
   onLoad: function(options) {
     var fromId = options.fromId
@@ -15,7 +14,6 @@ Page({
         fromId: options.fromId
       })
     }
-    this.checkNetWorking()
   },
   sendFlower: function(e) {
     var that = this
@@ -76,15 +74,6 @@ Page({
           func()
         })
     }
-  },
-  //判断是否正在审核小程序
-  checkNetWorking: function(){
-    var that = this
-    util.request(wx, '/index/isNetWorking', {}, function (result) {
-      that.setData({
-        netOk: result.netOk
-      })
-    })
   },
   //转发
   onShareAppMessage: function() {

@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="war" build-on-make="true" name="flipcard">
+    <output-path>$PROJECT_DIR$/out/artifacts/flipcard</output-path>
+    <root id="archive" name="flipcard.war">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="api" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="api/web/Web" />
+    </root>
+  </artifact>
+</component>

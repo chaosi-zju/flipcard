@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
+
+<log4j:configuration debug="true">
+
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="encoding" value="UTF-8" />  <!-- 保存字符集 -->
+        <param name="target" value="System.out" />  <!-- 输出到控制台 -->
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%p:  %d{yyyy-MM-dd HH:mm:ss a} [Method: %l ]%n%m%n%n"/>
+        </layout>
+    </appender>
+
+    <!-- [公共Appender] 这个class表示输入到文件，并且按日期生成新文件-->
+    <appender name="ERROR-LOG" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="${flipcardv2}/../mylog/flipcard/error_log" />  <!-- ${webapp.root}项目根路径，自动获得，不用配置，可自己在web.xml中配置 -->
+        <param name="Append" value="true" />  <!-- 是否项目重启继续保存之前日志 -->
+        <param name="encoding" value="UTF-8" />
+        <param name="threshold" value="ALL" /> <!-- 记录所有类型日志，记录它和比它等级高的日志all<debug -->
+        <param name="DatePattern" value="'_'yyyy-MM-dd'.log'" />  <!-- 日期格式  例子：common-default.log.2015-09-17.log-->
+        <layout class="org.apache.log4j.PatternLayout">  <!-- 输出方式 -->
+            <param name="ConversionPattern" value="%p:  %d{yyyy-MM-dd HH:mm:ss a} [Method: %l ]%n%m%n%n" />
+        </layout>
+    </appender>
+
+    <appender name="COMMON-LOG" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="${flipcardv2}/../mylog/flipcard/common_log" />
+        <param name="Append" value="true" />
+        <param name="encoding" value="UTF-8" />
+        <param name="threshold" value="ALL" />
+        <param name="DatePattern" value="'_'yyyy-MM-dd'.log'" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%p:  %d{yyyy-MM-dd HH:mm:ss a} [Method: %l ]%n%m%n%n" />
+        </layout>
+    </appender>
+
+    <logger name="error-log" additivity="false">
+        <level value="ERROR" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ERROR-LOG"/>
+    </logger>
+
+    <logger name="common-log" additivity="false">
+        <level value="ALL" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="COMMON-LOG"/>
+    </logger>
+
+    <root>
+        <level value="INFO" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</log4j:configuration>
